@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>サステナ経営検定３級 一問一答</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2b3a;
+    --paper:#f3efe4;
+    --paper-2:#ece5d3;
+    --navy:#20344a;
+    --navy-deep:#16232f;
+    --gold:#b8912f;
+    --gold-soft:#e9d9a8;
+    --correct:#3f7d58;
+    --correct-bg:#e3ede3;
+    --incorrect:#a8462f;
+    --incorrect-bg:#f2e2dc;
+    --line: rgba(28,43,58,0.14);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--navy-deep);
+    font-family: "Noto Sans JP", sans-serif;
+    color: var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    background: var(--paper);
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    box-shadow: 0 0 60px rgba(0,0,0,0.4);
+  }
+  .screen{ display:none; flex-direction:column; flex:1; min-height:100vh;}
+  .screen.active{ display:flex; }
+
+  /* ===== HEADER (quiz) ===== */
+  .quiz-header{
+    background: var(--navy);
+    color: var(--paper);
+    padding: 14px 20px 16px;
+    position:sticky; top:0; z-index:5;
+  }
+  .quiz-header .row1{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .quiz-header .exam-name{
+    font-family:"Shippori Mincho", serif;
+    font-size:17px; letter-spacing:.04em; color: var(--gold-soft);
+  }
+  .quiz-header .qnum{
+    font-family:"Shippori Mincho", serif;
+    font-size:18px; font-weight:700;
+  }
+  .quiz-header .qnum b{ font-size:26px; color: var(--gold-soft); }
+  .progress-track{
+    display:flex; gap:3px; height:7px;
+  }
+  .progress-seg{ flex:1; background: rgba(255,255,255,0.16); border-radius:2px; overflow:hidden;}
+  .progress-seg.done{ background: var(--gold); }
+  .progress-seg.current{ background: rgba(233,217,168,0.55); }
+
+  /* ===== START SCREEN ===== */
+  .start-screen{ padding: 0; }
+  .hero{
+    background: var(--navy);
+    color: var(--paper);
+    padding: 56px 28px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero::after{
+    content:"";
+    position:absolute; right:-40px; top:-40px;
+    width:180px; height:180px;
+    border:1px solid rgba(233,217,168,0.25);
+    border-radius:50%;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; right:10px; top:30px;
+    width:110px; height:110px;
+    border:1px solid rgba(233,217,168,0.18);
+    border-radius:50%;
+  }
+  .hero .eyebrow{
+    font-size:13px; color: var(--gold-soft); letter-spacing:.12em; margin-bottom:16px;
+  }
+  .hero h1{
+    font-family:"Shippori Mincho", serif;
+    font-weight:700;
+    font-size:34px;
+    line-height:1.5;
+    margin:0 0 16px;
+    position:relative; z-index:1;
+  }
+  .hero p{
+    font-size:16px; line-height:1.9; color: rgba(243,239,228,0.85); margin:0;
+    max-width: 340px;
+    position:relative; z-index:1;
+  }
+  .exam-list{ padding: 24px 20px 40px; display:flex; flex-direction:column; gap:14px; }
+  .exam-card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding: 20px 20px;
+    cursor:pointer;
+    position:relative;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .exam-card:active{ transform: scale(0.98); }
+  .exam-card .tag{
+    display:inline-block;
+    font-size:12px;
+    color: var(--gold);
+    border:1px solid var(--gold);
+    padding:3px 9px;
+    border-radius: 2px;
+    margin-bottom:12px;
+    letter-spacing:.05em;
+  }
+  .exam-card h2{
+    font-family:"Shippori Mincho", serif;
+    font-size:23px; margin:0 0 8px; color: var(--navy);
+  }
+  .exam-card .sub{
+    font-size:15px; color:#6b6558; margin:0 0 16px; line-height:1.7;
+  }
+  .exam-card .meta{
+    display:flex; justify-content:space-between; align-items:center;
+    border-top:1px solid var(--line); padding-top:14px;
+  }
+  .exam-card .meta span{ font-size:14px; color:#8a8374; }
+  .exam-card .go{
+    font-size:15px; font-weight:600; color: var(--navy);
+    display:flex; align-items:center; gap:6px;
+  }
+  .exam-card .go svg{ width:16px; height:16px; }
+
+  .footnote{
+    padding: 0 24px 34px; font-size:12.5px; color:#8a8374; line-height:1.9;
+  }
+
+  /* ===== QUESTION SCREEN ===== */
+  .q-body{ padding: 22px 18px 150px; flex:1; }
+  .q-theme{
+    font-size:14px; color: var(--gold); font-weight:600; margin-bottom:10px; letter-spacing:.03em;
+  }
+  .q-text{
+    font-family:"Shippori Mincho", serif;
+    font-size:21px; line-height:1.85; color: var(--navy); margin: 0 0 24px;
+    white-space: pre-line;
+  }
+  .options{ display:flex; flex-direction:column; gap:12px; }
+  .option{
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:3px;
+    padding:16px 16px;
+    display:flex; gap:13px; align-items:flex-start;
+    cursor:pointer;
+    font-size:18px; line-height:1.7;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .option:active{ background: var(--paper-2); }
+  .option .lab{
+    font-family:"Shippori Mincho", serif;
+    font-weight:700; color: var(--navy);
+    flex-shrink:0;
+    width:28px; height:28px;
+    border:1.5px solid var(--navy);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px;
+    margin-top:1px;
+  }
+  .option.disabled{ pointer-events:none; }
+  .option.correct{ border-color: var(--correct); background: var(--correct-bg); }
+  .option.correct .lab{ background: var(--correct); border-color: var(--correct); color:#fff; }
+  .option.wrong{ border-color: var(--incorrect); background: var(--incorrect-bg); }
+  .option.wrong .lab{ background: var(--incorrect); border-color: var(--incorrect); color:#fff; }
+  .option.faded{ opacity:.45; }
+
+  /* ===== EXPLANATION PANEL ===== */
+  .explain-panel{
+    position:fixed; left:0; right:0; bottom:0;
+    max-width:480px; margin:0 auto;
+    background: var(--navy);
+    color: var(--paper);
+    border-radius: 16px 16px 0 0;
+    padding: 20px 22px calc(20px + env(safe-area-inset-bottom));
+    transform: translateY(110%);
+    transition: transform .32s cubic-bezier(.22,.9,.35,1);
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
+    z-index: 20;
+  }
+  .explain-panel.show{ transform: translateY(0); }
+  .explain-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .verdict-badge{
+    font-family:"Shippori Mincho", serif;
+    font-weight:700; font-size:17px;
+    padding: 6px 14px; border-radius: 2px;
+  }
+  .verdict-badge.ok{ background: var(--correct); color:#fff; }
+  .verdict-badge.ng{ background: var(--incorrect); color:#fff; }
+  .explain-head .ans{ font-size:15px; color: var(--gold-soft); line-height:1.5; }
+  .explain-text{
+    font-size:16.5px; line-height:1.85; color: rgba(243,239,228,0.95);
+    max-height: 32vh; overflow-y:auto; margin-bottom:16px; padding-right:4px;
+  }
+  .explain-ref{
+    font-size:13px; color: rgba(233,217,168,0.8); margin-bottom:18px;
+  }
+  .next-btn{
+    width:100%; background: var(--gold); color: var(--navy-deep);
+    border:none; border-radius:2px; padding:16px; font-size:17px;
+    font-weight:700; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
+    letter-spacing:.02em;
+  }
+  .next-btn:active{ opacity:.85; }
+
+  /* ===== RESULT SCREEN ===== */
+  .result-hero{
+    background: var(--navy); color: var(--paper);
+    padding: 48px 28px 34px; text-align:center; position:relative; overflow:hidden;
+  }
+  .result-hero .eyebrow{ font-size:13px; color: var(--gold-soft); letter-spacing:.12em; margin-bottom:20px;}
+  .score-big{
+    font-family:"Shippori Mincho", serif; font-weight:700;
+    font-size:64px; line-height:1; color:#fff;
+  }
+  .score-big span{ font-size:24px; color: var(--gold-soft); margin-left:6px; }
+  .score-label{ font-size:15px; color: rgba(243,239,228,0.8); margin-top:12px; }
+  .result-list{ padding: 22px 20px 40px; flex:1; }
+  .result-list h3{
+    font-family:"Shippori Mincho", serif; font-size:17px; color:var(--navy); margin: 4px 0 16px;
+  }
+  .rgrid{ display:grid; grid-template-columns: repeat(6,1fr); gap:9px; margin-bottom:30px;}
+  .rgrid .cell{
+    aspect-ratio:1; border-radius:3px; display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700; color:#fff; cursor:pointer;
+  }
+  .rgrid .cell.ok{ background: var(--correct); }
+  .rgrid .cell.ng{ background: var(--incorrect); }
+  .result-actions{ display:flex; flex-direction:column; gap:12px; }
+  .btn-primary{
+    background: var(--navy); color:#fff; border:none; border-radius:2px;
+    padding:16px; font-size:17px; font-weight:600; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
+  }
+  .btn-secondary{
+    background:transparent; color: var(--navy); border:1.5px solid var(--navy); border-radius:2px;
+    padding:15px; font-size:17px; font-weight:600; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
+  }
+
+  /* review detail modal */
+  .review-overlay{
+    position:fixed; inset:0; background: rgba(22,35,47,0.6); z-index:30;
+    display:none; align-items:flex-end; justify-content:center;
+  }
+  .review-overlay.show{ display:flex; }
+  .review-sheet{
+    width:100%; max-width:480px; max-height:82vh; overflow-y:auto;
+    background:#fff; border-radius:16px 16px 0 0; padding:22px 22px calc(24px + env(safe-area-inset-bottom));
+  }
+  .review-sheet .close-x{
+    width:40px; height:40px; border-radius:50%; background: var(--paper-2); border:none;
+    display:flex; align-items:center; justify-content:center; margin-left:auto; margin-bottom:14px; cursor:pointer;
+    font-size:16px;
+  }
+  .review-sheet .rq-theme{ font-size:13.5px; color: var(--gold); font-weight:700; margin-bottom:8px;}
+  .review-sheet .rq-text{ font-family:"Shippori Mincho", serif; font-size:19px; line-height:1.8; color:var(--navy); margin-bottom:18px; white-space:pre-line;}
+  .review-sheet .ropt{ font-size:16.5px; padding:12px 14px; border-radius:3px; margin-bottom:9px; border:1px solid var(--line); line-height:1.65;}
+  .review-sheet .ropt.correct{ background: var(--correct-bg); border-color:var(--correct); }
+  .review-sheet .ropt.wrong{ background: var(--incorrect-bg); border-color:var(--incorrect); }
+  .review-sheet .rexp{ font-size:15.5px; line-height:1.85; color:#4a4638; background:var(--paper); padding:14px 16px; border-radius:3px; margin-top:14px;}
+  .review-sheet .rref{ font-size:12.5px; color:#8a8374; margin-top:10px;}
+
+  ::-webkit-scrollbar{ width:5px; }
+  ::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.2); border-radius:3px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- START SCREEN -->
+  <div class="screen active" id="screen-start">
+    <div class="start-screen">
+      <div class="hero">
+        <div class="eyebrow">SUSTAINA MANAGEMENT CERTIFICATION LV.3</div>
+        <h1>サステナ経営検定３級<br>一問一答</h1>
+        <p>問題に答えると、その場で正誤と解説・参照ページが表示されます。全40問、最後にスコアと振り返りも確認できます。</p>
+      </div>
+      <div class="exam-list" id="exam-list"></div>
+      <div class="footnote">出典：サステナ経営検定委員会／株式会社オルタナ「サステナ経営検定３級」模擬試験問題・解答解説、第22回試験問題・解答解説（2026年5月24日実施）</div>
+    </div>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div class="screen" id="screen-quiz">
+    <div class="quiz-header">
+      <div class="row1">
+        <div class="exam-name" id="hdr-exam-name"></div>
+        <div class="qnum">問 <b id="hdr-qnum">1</b> / <span id="hdr-qtotal">40</span></div>
+      </div>
+      <div class="progress-track" id="progress-track"></div>
+    </div>
+    <div class="q-body">
+      <div class="q-theme" id="q-theme"></div>
+      <div class="q-text" id="q-text"></div>
+      <div class="options" id="q-options"></div>
+    </div>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="screen" id="screen-result">
+    <div class="result-hero">
+      <div class="eyebrow" id="result-exam-name"></div>
+      <div class="score-big"><span id="result-score">0</span><span>/ 40</span></div>
+      <div class="score-label">お疲れさまでした。結果を振り返りましょう。</div>
+    </div>
+    <div class="result-list">
+      <h3>設問別の正誤（タップで解説）</h3>
+      <div class="rgrid" id="rgrid"></div>
+      <div class="result-actions">
+        <button class="btn-primary" id="btn-retry">同じ試験をもう一度解く</button>
+        <button class="btn-secondary" id="btn-home">試験を選び直す</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLAIN PANEL -->
+  <div class="explain-panel" id="explain-panel">
+    <div class="explain-head">
+      <div class="verdict-badge" id="verdict-badge">正解</div>
+      <div class="ans">正答：<span id="explain-answer"></span></div>
+    </div>
+    <div class="explain-text" id="explain-text"></div>
+    <div class="explain-ref" id="explain-ref"></div>
+    <button class="next-btn" id="btn-next">次の問題へ</button>
+  </div>
+
+  <!-- REVIEW OVERLAY -->
+  <div class="review-overlay" id="review-overlay">
+    <div class="review-sheet" id="review-sheet"></div>
+  </div>
+
+</div>
+
+<script>
+const EXAMS = [{"id": "mock", "title": "模擬試験", "subtitle": "サステナ経営検定３級 模擬試験", "questions": [{"num": 1, "theme": "サステナ経営の定義", "text": "「サステナ経営の定義」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "サステナビリティ課題への対応を専門部署に限定し、本業とは切り離して社会貢献に取り組むことである。", "イ": "サステナビリティをあらゆる経営判断に組み込み、企業価値と社会価値を同軸化し、社会課題の解決を通じて事業創造することであり、社会に存在する「未来の顧客」を顧客化することを含む。", "ウ": "株主とのみ対話を重ね、株主価値の最大化のみを目指すことである。", "エ": "サステナ領域のリスクを未然に防ぐことに徹し、リスクを機会に変えて競争優位を確立することは目的としない。"}, "answer": "イ", "explanation": "サステナ経営の定義は、サステナビリティを経営判断に組み込み企業価値と社会価値を同軸化し、社会課題解決を通じて事業創造すること（未来の顧客の顧客化を含む）。ア・ウ・エは定義に反する。", "ref": "Chapter 1.1 サステナ経営の定義と目的"}, {"num": 2, "theme": "SDGsとサステナ経営", "text": "「SDGs とサステナ経営」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "SDGs は 2015 年９月に国連のサミットで採択された、国際社会における共通の開発目標である。", "イ": "SDGs は 17 の目標と 169 のターゲットからなり、国連の全加盟国 193 カ国が参加して採択された。", "ウ": "SDGs は「誰一人取り残さない」世界の実現を掲げ、2030 年を目標年に定めている。", "エ": "SDGs は先進国と開発途上国の間の経済的不平等の是正に特化したアジェンダであり、環境に関する目標は含まない。"}, "answer": "エ", "explanation": "SDGs は全ての国が対象で、環境に関する目標も含まれる。「経済的不平等の是正に特化し環境目標を含まない」は誤り。", "ref": "Chapter 1.2 SDGs とサステナ経営"}, {"num": 3, "theme": "サステナ経営の世界潮流", "text": "「サステナ経営の世界潮流」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "欧米企業の CSR の歴史を振り返ると、その背景には NGO／NPO や地域社会などのステークホルダーが密接に関わっていたことが分かる。", "イ": "シェルの 1995 年の「ブレント・スパー」処分に関する事件では、国際環境 NGO が追及したものの、海洋投棄は計画通りに進んだ。", "ウ": "米ナイキは 1997 年、自社が直営する東南アジアの工場で起きた労働・人権問題が発覚した。", "エ": "直接対話の機会がない移住労働者や先住民族などのライツホルダーは、ステークホルダーとは言えない。"}, "answer": "ア", "explanation": "欧米 CSR の歴史には NGO／NPO や地域社会が密接に関与してきた。イ（ブレント・スパーは海洋投棄を断念）、ウ（ナイキは委託先工場）、エ（移住労働者・先住民族もステークホルダー／ライツホルダー）は誤り。", "ref": "Chapter 1.3 サステナ経営の世界潮流"}, {"num": 4, "theme": "大企業と中小企業のCSR", "text": "「大企業と中小企業の CSR」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "CSR の理解とモチベーション向上のためには、座学だけでなく、参加型の地域社会貢献や社内のコミュニケーションなどが重要であり、それがしやすいのは中小企業である。", "イ": "CSR は、ステークホルダーの期待やニーズを把握し、その取り組みをステークホルダーの評価や共感を呼ぶように効果的に伝えることが重要である。", "ウ": "中小企業は、地域や得意先など特定のターゲットに合わせた CSR への取り組みがしやすい。", "エ": "中小企業は資金や人材の制約が大きいので、効果的な CSR コミュニケーションを実現させることは不可能である。"}, "answer": "エ", "explanation": "中小企業は資金や人材の制約はあるものの、地域や得意先に合わせた取り組みがしやすいなどの強みがあり、効果的な CSR コミュニケーションは十分に可能である。「実現させることは不可能」は誤り。", "ref": "Chapter 1.4 大企業と中小企業の CSR"}, {"num": 5, "theme": "石田梅岩の教え", "text": "次の記述のうち、江戸時代の思想家・石田梅岩の教えではないものを一つ選べ。", "options": {"ア": "商人は利だけを追い求めて義を知らない、最も賤しい職業だと自覚すべきである。", "イ": "お客様に満足していただける働きをすれば、必ず利益はいただける（顧客満足の精神）。", "ウ": "利益を得るには、まず法律（御法）を守り、そのうえに誠実を貫くことが必要である。", "エ": "商売は、相手も自分も利益を得、お客様にも喜んでいただき、商売にかかわる全ての人々が満足するものでなくてはならない。"}, "answer": "ア", "explanation": "「利だけを追い義を知らない賤しい職業」は、当時の武士が商人を蔑んだ見方であり、石田梅岩の教えではない。梅岩はむしろ商人の社会的意義と倫理を説いた。", "ref": "Chapter 1.4 伝統的な日本型 CSR の精神"}, {"num": 6, "theme": "コンプライアンスの本質", "text": "「コンプライアンスの本質」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "企業は関係法令（法律、政令、省令など）を順守してさえいれば、コンプライアンス違反による不祥事を防止することができる。", "イ": "日本国内でビジネスを行う場合、「ビジネスと人権に関する指導原則」などの国際的イニシアティブは、コンプライアンスの範囲外となる。", "ウ": "社会の常識・良識などの「社会規範の順守」に配慮し、ステークホルダーや社会からの要請に対応することが重要である。", "エ": "法的な拘束力のない社会的規範のことを「ハードロー」という。"}, "answer": "ウ", "explanation": "社会規範の順守に配慮し、ステークホルダーや社会からの要請に対応することが重要。ア（法令順守だけで防止できる→誤り）、イ（国際イニシアティブは範囲外→誤り）、エ（拘束力のない規範はソフトロー）は誤り。", "ref": "Chapter 1.5 コンプライアンスの本質"}, {"num": 7, "theme": "GRIスタンダード", "text": "「サステナ報告書の役割と現状」における「GRI スタンダード」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "GRI スタンダードは、CSR 活動に関して一定の水準を満たす組織に付与される第三者認証規格である。", "イ": "GRI スタンダードは、機関投資家が ESG 投資を行う際の手引きが示された、投資家向けのガイドラインである。", "ウ": "GRI スタンダードは、報告基準として世界中で最も活用され、標準となっている。", "エ": "GRI スタンダードは、企業がビジネスとして SDGs に取り組む際の戦略手法が示されたガイダンスである。"}, "answer": "ウ", "explanation": "GRI スタンダードは報告基準として世界中で最も活用され標準となっている。ア（第三者認証規格→誤り）、イ（投資家向けガイドライン→誤り）、エ（SDGs 戦略手法のガイダンス→誤り）は誤り。", "ref": "Chapter 1.6 サステナ報告書の役割と現状"}, {"num": 8, "theme": "ISO26000", "text": "「ISO26000」の７つの原則に含まれていないものを一つ選べ。", "options": {"ア": "説明責任", "イ": "人権の尊重", "ウ": "ワーク・ライフ・バランスの尊重", "エ": "国際行動規範の尊重"}, "answer": "ウ", "explanation": "ISO26000 の７つの原則は、説明責任・透明性・倫理的な行動・ステークホルダーの利害の尊重・法の支配の尊重・国際行動規範の尊重・人権の尊重。「ワーク・ライフ・バランスの尊重」は含まれない。", "ref": "Chapter 1.7 ISO26000 とは何か"}, {"num": 9, "theme": "国連グローバル・コンパクト", "text": "「国連グローバル・コンパクト（UNGC）」に関する次の文章の空欄に該当する語句・数字として、最も適切な組み合わせを一つ選べ。\n\nUNGC は、「人権」「労働」「（ A ）」「腐敗防止」の４分野の原則で構成されている。（ B ）年に発足した背景には、ナショナリズムの負の側面が目立ってきたことがある。署名している企業は、取り組み状況についての報告書を（ C ）提出することが義務付けられている。", "options": {"ア": "A：環境　B：2000　C：年に１回", "イ": "A：平和　B：2015　C：３年に１回", "ウ": "A：環境　B：2015　C：３年に１回", "エ": "A：平和　B：2000　C：年に１回"}, "answer": "ア", "explanation": "A：環境（人権・労働・環境・腐敗防止の４分野）。B：2000（年に発足）。C：年に１回（報告書提出が義務）。", "ref": "Chapter 1.8 国連グローバル・コンパクト"}, {"num": 10, "theme": "ESG投資／サステナブル投資", "text": "「ESG 投資／サステナブル投資」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "ESG 投資（責任投資）とは、投資家が環境・社会・ガバナンス課題への取り組みを調査・評価し、財務情報と統合して投資する手法である。", "イ": "ESG 投資の歴史は、アルコールやタバコに関連する企業を投資対象から除外する「ネガティブスクリーニング」に代表される社会的責任投資（SRI）に遡る。", "ウ": "2006 年に発足した国連責任投資原則（PRI）は、機関投資家が投資判断に ESG 課題を組み込むことを求めている。", "エ": "サステナブル投資は日本ではほとんど広がっておらず、投資全体に占める割合は世界最低水準である。"}, "answer": "エ", "explanation": "日本のサステナブル投資は近年大きく拡大しており、世界でもトップクラスの規模である。「ほとんど広がっておらず世界最低水準」は誤り。", "ref": "Chapter 1.9 ESG 投資／サステナブル投資"}, {"num": 11, "theme": "地方自治体のSDGs政策", "text": "「地方自治体の SDGs 政策」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "日本政府は 2018 年、自治体の模範となるモデル事例を創出するため、「SDGs 未来都市」および「自治体 SDGs モデル事業」の選定を開始した。", "イ": "「SDGs 未来都市」は、「環境モデル都市」「環境未来都市」を発展させた制度である。", "ウ": "自治体は、企業の中期経営計画に相当する「総合計画」に SDGs を実装するなどして自治体 SDGs に取り組んでいる。", "エ": "「SDGs 未来都市」とは、SDGs の理念に合致する自然環境を持つ都市を、世界遺産として登録する制度である。"}, "answer": "エ", "explanation": "「SDGs 未来都市」は世界遺産の登録制度ではなく、SDGs 達成に向けた自治体の取り組みモデル事例を選定する制度である。", "ref": "Chapter 1.10 地方自治体の SDGs 政策"}, {"num": 12, "theme": "三方よし", "text": "「企業と社会の関係性（三方よし）」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "「三方よし」とは、「売り手よし」「買い手よし」「世間よし」を指す、近江商人の経営哲学である。", "イ": "「三方よし」とは、「株主よし」「経営者よし」「従業員よし」の三者の利益を最優先する考え方である。", "ウ": "「三方よし」は、明治期の財閥が海外進出の際に掲げた標語である。", "エ": "「三方よし」の「世間よし」とは、同業他社との競争に勝つことを意味する。"}, "answer": "ア", "explanation": "「三方よし」は「売り手よし」「買い手よし」「世間よし」を指す近江商人の経営哲学。イ・ウ・エは誤り。", "ref": "Chapter 2.1 企業と社会の関係性"}, {"num": 13, "theme": "社会における企業の役割", "text": "「社会における企業の役割」に関する次の記述のうち、適切な文章の組み合わせを一つ選べ。\n\n１．ISO26000 では、社会的責任を「組織の決定及び活動が社会及び環境に及ぼす影響に対して、透明かつ倫理的な行動を通じて組織が担う責任」と定義している。\n２．企業の責任は、サプライチェーンには及ぶが、製品の使用や廃棄を含めたバリューチェーンにまでは及ばない。\n３．EU（欧州連合）は 2011 年、CSR を「企業の社会に与える影響（インパクト）に対する責任」と再定義した。\n４．気候変動の原因である温室効果ガスの排出や熱帯雨林の破壊などは、企業活動に直接関係ないので企業の責任ではない。", "options": {"ア": "１と２", "イ": "１と３", "ウ": "２と４", "エ": "３と４"}, "answer": "イ", "explanation": "１・３が適切。２は不適切（企業の責任はサプライチェーンだけでなく、製品の使用や廃棄を含めたバリューチェーンにも及ぶ）。４は不適切（温室効果ガス排出や森林破壊は企業の責任の範囲に含まれる）。", "ref": "Chapter 2.2 社会における企業の役割"}, {"num": 14, "theme": "ステークホルダーとは何か", "text": "「ステークホルダーとは何か」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "ステークホルダーとは株主・顧客・従業員・消費者などを指し、地域社会はこれに含まれない。", "イ": "ステークホルダーの期待を経営に生かしていくためには、株価の上昇を最優先することが最も重要である。", "ウ": "ISO26000 は、ステークホルダーを「組織の何らかの決定または活動に利害関係を持つ個人またはグループ」と定義しており、取引先もこれに該当する。", "エ": "「声なき声」を代弁するという考え方はなく、将来世代のために環境保護を主張する NGO／NPO はステークホルダーとは言えない。"}, "answer": "ウ", "explanation": "ISO26000 はステークホルダーを「組織の何らかの決定または活動に利害関係を持つ個人またはグループ」と定義し、取引先も該当する。ア（地域社会も含まれる）、イ（株価上昇の最優先→誤り）、エ（将来世代を代弁する NGO／NPO もステークホルダー）は誤り。", "ref": "Chapter 2.3 ステークホルダーとは何か"}, {"num": 15, "theme": "企業に求められる対話力", "text": "「企業に求められる対話力」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "コンプライアンスは、社会の期待や価値観の変化を受け入れるという点において、CSR とは本質的に異なっている。", "イ": "コンプライアンス課題の解決策を模索する際には、多様なステークホルダーとの対話を通じて、自社の経済的利益を優先するように相手を説得する必要がある。", "ウ": "コンプライアンス課題の解決に向けて、企業には、異なる価値観を持つステークホルダーとの対話を通じて落としどころを模索し、ルールの創造を進めることが求められる。", "エ": "コンプライアンス課題については、できるだけ単純化して理解し、画一的な解決策を見つけることが望ましい。"}, "answer": "ウ", "explanation": "企業には、異なる価値観のステークホルダーとの対話を通じて落としどころを模索し、ルールの創造を進めることが求められる。ア・イ・エは本文の趣旨に反する。", "ref": "Chapter 2.4 企業に求められる対話力"}, {"num": 16, "theme": "消費者重視経営", "text": "「消費者重視経営とは何か」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "消費者重視経営とは、消費者を単に保護されるべき弱者とみなし、企業が一方的にサービスを提供することである。", "イ": "消費者は単に保護されるべき存在ではなく、企業に対して働きかけるステークホルダーの側面も持ちうる。", "ウ": "消費者の意見や苦情を企業経営に反映する必要はなく、法令を守ってさえいればよい。", "エ": "消費者基本法は、消費者を保護の対象としてのみ位置づけ、自立した主体とはみなしていない。"}, "answer": "イ", "explanation": "消費者は単に保護されるべき存在ではなく、企業に対して働きかけるステークホルダーの側面も持ちうる。ア（一方的にサービス提供→誤り）、ウ（意見・苦情を反映しなくてよい→誤り）、エ（消費者基本法は自立した主体とみなす）は誤り。", "ref": "Chapter 2.5 消費者重視経営とは何か"}, {"num": 17, "theme": "トリプルボトムライン", "text": "「トリプルボトムライン（TBL）」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "TBL の言葉の由来は、損益計算書の最終ライン（決算）を意味する会計用語から来ている。", "イ": "TBL とは、環境的側面、社会的側面、文化的側面に配慮したバランスの良い経営を行うこと、と解釈されている。", "ウ": "社会的側面の例として、人権、労働慣行とディーセントワーク、地域コミュニティーなどが挙げられる。", "エ": "サステナビリティ報告書の実質的な国際基準である GRI も、TBL の概念を取り入れている。"}, "answer": "イ", "explanation": "TBL は、環境的側面・社会的側面・「経済的側面」の３つの軸で評価する。「文化的側面」は誤り。", "ref": "Chapter 2.6 トリプルボトムラインとは"}, {"num": 18, "theme": "企業の社会貢献と寄付", "text": "「企業の社会貢献と寄付」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "「寄付白書プラス 2024」によると、個人寄付の推計総額はこの 10 年で減少している。", "イ": "東日本大震災以降、寄付を行う人の割合は増加傾向にある。", "ウ": "課題の根本的な解決のためには、「セルフ・エフォート」で地域力を高める視点は重要ではない。", "エ": "顔の見える関係での NPO 支援は、社会貢献にはなるが、従業員の社会性獲得や人材育成としての有効性はない。"}, "answer": "イ", "explanation": "東日本大震災以降、寄付を行う人の割合は増加傾向にある。ア（個人寄付は減少→誤り。増加）、ウ（セルフ・エフォートは重要）、エ（NPO 支援は人材育成にも有効）は誤り。", "ref": "Chapter 2.8 企業の社会貢献と寄付"}, {"num": 19, "theme": "ビジネスと人権", "text": "「ビジネスと人権」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "世界人権宣言の第１条は「すべての人間は、生まれながらにして自由であり、尊厳と権利において平等である」と定めている。", "イ": "児童労働とは、基本的に 15 歳未満の違法労働と、15 歳以上 18 歳未満の危険有害労働を指す。", "ウ": "家の手伝いや新聞配達などの軽易な労働も、すべて児童労働に含まれる。", "エ": "国際労働機関（ILO）と国連児童基金（UNICEF）は 2025 年、世界の児童労働者数を約 1 億 3800 万人と発表した。"}, "answer": "ウ", "explanation": "家の手伝いや新聞配達などの軽易な労働は児童労働には含まれない。児童労働は基本的に 15 歳未満の違法労働と 15 歳以上 18 歳未満の危険有害労働を指す。", "ref": "Chapter 2.9 ビジネスと人権"}, {"num": 20, "theme": "社会とつながる働き方", "text": "日本の「社会とつながる働き方」に関する次の文章の空欄に該当する語句・数字として、最も適切な組み合わせを一つ選べ。\n\n2019 年４月から順次施行されている（ A ）は、「時間外労働の上限規制」（原則月（ B ）時間）をはじめとした長時間労働の是正や、（ C ）の拡充といった多様な働き方などを盛り込んでいる。", "options": {"ア": "A：働き方改革関連法　B：45　C：フレックスタイム制", "イ": "A：労働基準法　B：80　C：コアタイム制", "ウ": "A：働き方改革関連法　B：80　C：コアタイム制", "エ": "A：労働基準法　B：45　C：フレックスタイム制"}, "answer": "ア", "explanation": "A：働き方改革関連法。B：45（時間外労働の上限規制は原則月 45 時間）。C：フレックスタイム制。", "ref": "Chapter 3.1 社会とつながる働き方"}, {"num": 21, "theme": "NGO／NPOとは", "text": "日本の「NGO／NPO とは」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n（1）NPO とは（ A ）を目的とした市民の自発的な組織である。\n（2）1998 年に施行された「特定非営利活動促進法（NPO 法）」は、NPO に（ B ）を与えることを目的とした。\n（3）従来の「公助」や「自助」では解決できない課題に対し、市民自ら取り組むことを（ C ）という。", "options": {"ア": "A：社会課題の解決　B：法人格　C：共助", "イ": "A：利益の分配　B：補助金　C：公助", "ウ": "A：社会課題の解決　B：補助金　C：公助", "エ": "A：利益の分配　B：法人格　C：共助"}, "answer": "ア", "explanation": "A：社会課題の解決。B：法人格。C：共助（公助・自助で解決できない課題に市民自ら取り組むこと）。", "ref": "Chapter 3.2 NGO／NPO とは"}, {"num": 22, "theme": "企業とNPOが協働する意義", "text": "「企業と NPO が協働する意義」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "企業が NPO に資金や労力を提供する活動は、企業による一方向的な取り組みであるために協働とはいえない。", "イ": "企業が NPO と協働することで得られる成果として、従業員の能力開発に役立つと考えている企業は少ない。", "ウ": "企業が NPO と協働することで、イメージアップなどの成果はあっても、本業への貢献にはつながらない。", "エ": "企業と NPO が協働することによって、当事者だけでなく社会にとっても、課題解決や意識の変化、地域の活性化などの副産物が生まれる。"}, "answer": "エ", "explanation": "企業と NPO の協働によって、当事者だけでなく社会にも課題解決や地域活性化などの副産物が生まれる。ア（一方向的で協働でない→誤り）、イ（能力開発に役立つと考える企業は少ない→誤り）、ウ（本業に貢献しない→誤り）は誤り。", "ref": "Chapter 3.3 企業と NPO が協働する意義"}, {"num": 23, "theme": "ワーク・ライフ・バランス", "text": "日本の「ワーク・ライフ・バランス（WLB）」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n2003 年に（ A ）が施行されて以降、企業は男性の育児休業取得にも熱心に取り組むようになった。同法に基づき一定の要件を満たした企業は、申請により「（ B ）」として厚生労働大臣の認定（（ C ））を受けることができる。", "options": {"ア": "A：次世代育成支援対策推進法　B：子育てサポート企業　C：くるみんマーク", "イ": "A：男女雇用機会均等法　B：男女共同参画企業　C：えるぼしマーク", "ウ": "A：次世代育成支援対策推進法　B：男女共同参画企業　C：えるぼしマーク", "エ": "A：男女雇用機会均等法　B：子育てサポート企業　C：くるみんマーク"}, "answer": "ア", "explanation": "A：次世代育成支援対策推進法。B：子育てサポート企業。C：くるみんマーク。", "ref": "Chapter 3.5 ワーク・ライフ・バランス"}, {"num": 24, "theme": "プロボノ", "text": "「プロボノ」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n弁護士が社会的弱者の法律相談に乗ったり、医師が海外の医療支援にボランティアで参加したりすることは、プロボノと（ A ）。日本では（ B ）が「プロボノ元年」と呼ばれ、認知や関心が高まって参加者も広がった。企業は NPO を支援しながら、本業の強みを生かした社会貢献や（ C ）にもつなげることができる。", "options": {"ア": "A：いえる　B：2000 年　C：売上向上", "イ": "A：いえない　B：2000 年　C：売上向上", "ウ": "A：いえる　B：2010 年　C：イノベーション", "エ": "A：いえない　B：2010 年　C：イノベーション"}, "answer": "ウ", "explanation": "A：いえる。B：2010 年（プロボノ元年）。C：イノベーション。", "ref": "Chapter 3.5 「プロボノ」とは何か"}, {"num": 25, "theme": "SDGsと消費行動", "text": "日本の「SDGs と消費行動」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n2012 年に制定された（ A ）は、消費者教育の推進を（ B ）の義務と定め、「消費者市民社会」の実現を理念に掲げている。従来の消費者教育は消費者の保護にとどまりがちであったが、今後は消費者が高度に自立して、自発的に（ C ）社会的な消費観のための教育が必要である。", "options": {"ア": "A：消費者基本法　B：行政　C：自身を守る", "イ": "A：消費者教育推進法　B：行政　C：社会に働き掛ける", "ウ": "A：消費者基本法　B：事業者　C：自身を守る", "エ": "A：消費者教育推進法　B：事業者　C：社会に働き掛ける"}, "answer": "イ", "explanation": "A：消費者教育推進法。B：行政（の義務）。C：社会に働き掛ける。", "ref": "Chapter 3.6 SDGs と消費行動"}, {"num": 26, "theme": "気候変動交渉の動き", "text": "「気候変動交渉の動き」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "2015 年の COP21 では、2020 年以降の国際枠組み「パリ協定」が採択された。", "イ": "開発途上国からロス＆ダメージに対処するための資金・技術面でのニーズが大きくなっており、企業の貢献が必要である。", "ウ": "気候変動の緩和策として、先進国の対策は十分であるため、拡大する開発途上国の GHG 排出削減のみが重要である。", "エ": "近年、ESG 金融が国内外で急拡大し、GHG 排出量の削減や適応策へのファイナンスを促進しようとする動きも広がっている。"}, "answer": "ウ", "explanation": "気候変動の緩和策として、先進国の対策も十分とはいえず、先進国・途上国の双方の取り組みが重要である。「先進国の対策は十分」は誤り。", "ref": "Chapter 4.1 気候変動交渉の動き"}, {"num": 27, "theme": "SBTi", "text": "「企業と脱炭素」に関し、「SBTi（サイエンス・ベースド・ターゲット・イニシアティブ）」の目的として、最も適切なものを一つ選べ。", "options": {"ア": "科学的根拠に基づいて企業の温室効果ガス（GHG）排出削減目標を設定することを促す。", "イ": "企業の利益を最大化する投資戦略を示す。", "ウ": "政府が企業の GHG 排出量を規制するための法律を作る。", "エ": "企業によって異なっていた GHG 排出量の測定方法を統一する。"}, "answer": "ア", "explanation": "SBTi は、科学的根拠に基づいて企業の GHG 排出削減目標を設定することを促す枠組みである。イ・ウ・エは誤り。", "ref": "Chapter 4.2 企業と脱炭素"}, {"num": 28, "theme": "生物多様性", "text": "「生物多様性」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n（1）生物多様性の危機は、（ A ）と並ぶサステナビリティの二大課題となっている。\n（2）生物多様性は、企業活動を支える重要な（ B ）である。\n（3）TCFD の生物多様性版というべき（ C ）が 2023 年９月に最終提言を発表した。", "options": {"ア": "A：気候危機　B：社会資本　C：GRI スタンダード", "イ": "A：気候危機　B：自然資本　C：自然関連財務情報開示タスクフォース（TNFD）", "ウ": "A：経済危機　B：社会資本　C：自然関連財務情報開示タスクフォース（TNFD）", "エ": "A：経済危機　B：自然資本　C：GRI スタンダード"}, "answer": "イ", "explanation": "A：気候危機（と並ぶ二大課題）。B：自然資本。C：自然関連財務情報開示タスクフォース（TNFD）。", "ref": "Chapter 4.3 生物多様性"}, {"num": 29, "theme": "世界の貧困と児童労働", "text": "「世界の貧困と児童労働」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "世界銀行の推計によると、国際貧困ライン（１日 2.15 ドル）未満で生活する人々は、2024 年時点で約 6 億 9200 万人にのぼる。", "イ": "SDGs のターゲット 8.7 には、あらゆる形態の児童労働の撤廃という目標が設定されている。", "ウ": "MDGs が主に途上国を対象としていたのに対し、SDGs は全ての国が対象となっている。", "エ": "児童労働は、企業が直接児童を使用する場合のみが問題であり、サプライチェーン上の委託先や原料調達現場は企業の責任の範囲外である。"}, "answer": "エ", "explanation": "児童労働については、直接児童を使用する場合だけでなく、サプライチェーン上の委託先や原料調達現場も含めた「加担」の是正が企業に求められる。「委託先や原料調達現場は責任の範囲外」は誤り。", "ref": "Chapter 4.4 世界の貧困と児童労働"}, {"num": 30, "theme": "認証ラベル", "text": "「認証ラベル」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "FSC（森林管理協議会）認証は、適切に管理された森林から生産された木材・紙製品であることを示す。", "イ": "MSC（海洋管理協議会）認証は、持続可能な漁業で獲られた水産物であることを示す。", "ウ": "有機 JAS 認証は、農薬や化学肥料に頼らないなどの基準を満たした農産物などに付与される。", "エ": "認証ラベルは万能であり、その製品のあらゆる側面（環境・人権・品質など）がすべて担保されていることを保証している。"}, "answer": "エ", "explanation": "認証ラベルは万能ではなく、特定の側面だけに焦点を当てて、それが担保されていることしか保証していない。「あらゆる側面がすべて担保されていることを保証」は誤り。", "ref": "Chapter 4.5 エシカルなビジネス（認証ラベル）"}, {"num": 31, "theme": "フェアトレード", "text": "「フェアトレード」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "フェアトレードとは、開発途上国の原料や製品を、通常よりも安く買いたたくことで先進国の消費者に利益をもたらす仕組みである。", "イ": "フェアトレード認証は、環境負荷の少なさのみを基準とし、生産者の労働条件は対象としていない。", "ウ": "フェアトレードとは、開発途上国の生産者や労働者の生活改善と自立を目指し、公正な条件で継続的に取引する仕組みである。", "エ": "フェアトレードの対象となるのは工業製品のみであり、コーヒーやチョコレートなどの食品は含まれない。"}, "answer": "ウ", "explanation": "フェアトレードは、開発途上国の生産者や労働者の生活改善と自立を目指し、公正な条件で継続的に取引する仕組み。ア（安く買いたたく→誤り）、イ（労働条件も対象）、エ（コーヒー・チョコレートなど食品も対象）は誤り。", "ref": "Chapter 4.6 フェアトレード"}, {"num": 32, "theme": "日本の有機農業", "text": "日本の「有機農業」に関する次の記述のうち、適切な文章の組み合わせを一つ選べ。\n\n１．有機農業とは、化学的に合成された肥料や農薬を基本的に使用しない方法で生産する農業である。\n２．有機農業には、生物多様性の維持への効果はない。\n３．2021 年に農林水産省が「みどりの食料システム戦略」を策定し、有機農業の拡大などを目標に掲げた。\n４．日本では有機農業がすでに全農地の過半で実践されており、これ以上拡大する必要性は乏しい。", "options": {"ア": "１と３", "イ": "１と４", "ウ": "２と３", "エ": "２と４"}, "answer": "ア", "explanation": "１・３が適切。２は不適切（有機農業には生物多様性の維持への効果が期待される）。４は不適切（日本の有機農業は全農地のごく一部にとどまり、みどりの食料システム戦略で拡大が目標とされている）。", "ref": "Chapter 4.7 オーガニック／有機農業"}, {"num": 33, "theme": "第7次エネルギー基本計画", "text": "日本政府が 2025 年に閣議決定した「第７次エネルギー基本計画」で見込んでいる 2040 年度の主要な自然エネルギー電源の割合として、最も適切な組み合わせを一つ選べ。（太陽光／風力／水力）", "options": {"ア": "８〜10％／４〜８％／23〜29％", "イ": "４〜８％／23〜29％／８〜10％", "ウ": "23〜29％／４〜８％／８〜10％", "エ": "４〜８％／８〜10％／23〜29％"}, "answer": "ウ", "explanation": "第７次エネルギー基本計画が見込む 2040 年度の電源割合は、太陽光 23〜29％、風力４〜８％、水力８〜10％。", "ref": "Chapter 4.8 自然エネルギーと RE100"}, {"num": 34, "theme": "障がい者雇用", "text": "日本の「障がい者雇用」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "障害者雇用促進法で定められた法定雇用率は、2024 年時点で「民間企業」「国・地方公共団体など」「教育委員会」のいずれも 2.8％に統一されている。", "イ": "2016 年に改正障害者雇用促進法が施行され、障がい者と障がい者でない人との均等な機会を確保することが義務付けられた。", "ウ": "わが国では、障がい者は「身体障がい者」「知的障がい者」の２区分に分けられている。", "エ": "2024 年の「障害者雇用状況の集計結果」によれば、民間企業における雇用障がい者数は前年より減少した。"}, "answer": "イ", "explanation": "2016 年施行の改正障害者雇用促進法で、障がい者と障がい者でない人との均等な機会確保が義務付けられた。ア（いずれも 2.8％に統一→誤り。区分により異なる）、ウ（身体・知的の２区分→誤り。精神を含む３区分）、エ（雇用障がい者数が減少→誤り。増加）は誤り。", "ref": "Chapter 4.9 障がい者雇用"}, {"num": 35, "theme": "ソーシャルビジネス", "text": "「ソーシャルビジネス」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "ソーシャルビジネスとは、「経済的目的」と「社会的目的」のうち、「社会的目的」の比重が高い経済活動のことである。", "イ": "世界的に有名なソーシャルビジネスの例は、ムハマド・ユヌス氏が創設したグラミン銀行である。", "ウ": "グラミン銀行は「マイクロクレジット」と呼ばれる低金利の無担保融資によって、貧困層の資金繰りを支援してきた。", "エ": "ソーシャルビジネスの担い手は、NGO や NPO などの非営利団体に限られる。"}, "answer": "エ", "explanation": "ソーシャルビジネスの担い手は NGO や NPO に限られず、企業（株式会社・合同会社）、協同組合、第三セクター的な事業体などもある。「非営利団体に限られる」は誤り。", "ref": "Chapter 4.10 ソーシャルビジネス"}, {"num": 36, "theme": "サーキュラーエコノミー", "text": "「サーキュラーエコノミー」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "サーキュラーエコノミーは、資源を可能な限り循環利用し、廃棄を減らすことを目指す経済の仕組みである。", "イ": "日本政府は 2019 年に「プラスチック資源循環戦略」を策定し、「３R＋リニューアブル（再生可能）」を基本原則の一つに掲げた。", "ウ": "サーキュラーエコノミーでは、製品を長く使い、資源として循環させやすい設計が求められる。", "エ": "サーキュラーエコノミーの目的は、ワンウェイ（使い捨て）プラスチックの利用を拡大することである。"}, "answer": "エ", "explanation": "サーキュラーエコノミーは、ワンウェイ（使い捨て）プラスチックの利用を「拡大」するのではなく削減を目指す。ア（循環利用し廃棄を減らす）、イ（プラスチック資源循環戦略 2019、３R＋リニューアブル）、ウ（長期使用・循環しやすい設計）は適切。", "ref": "Chapter 4.11 サーキュラーエコノミー"}, {"num": 37, "theme": "海洋プラスチックごみ問題", "text": "「海洋プラスチックごみ問題」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "世界的に使い捨てプラスチックに関する規制が進む一方で、日本国内では事業者に対しプラスチックごみの排出抑制を義務付けていない。", "イ": "国連環境計画（UNEP）が 2018 年に発表した報告書では、１人当たりのプラスチック容器包装廃棄量は、１位が米国、２位がフィンランド、３位が中国であった。", "ウ": "海に流出したプラスチック類は、技術的に海や海岸からすべて回収することが可能である。", "エ": "2016 年のダボス会議では「海洋プラスチックの総量が 2050 年までに海の魚類の重量を上回る」と発表された。"}, "answer": "エ", "explanation": "2016 年のダボス会議で「海洋プラスチックの総量が 2050 年までに海の魚類の重量を上回る」と発表された。ア（日本は排出抑制を義務付けている）、イ（１人当たり廃棄量は１位米国・２位日本）、ウ（すべて回収可能→誤り）は誤り。", "ref": "Chapter 4.12 海洋プラスチックごみ問題"}, {"num": 38, "theme": "アニマルウェルフェア", "text": "「アニマルウェルフェア」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n（ A ）は、科学的根拠に基づき最低限の動物福祉基準を規定しており、その原則には「動物の利用には、（ B ）その動物の福祉を確保する倫理的責任が伴っている」と書かれている。さらに、畜産動物の福祉は「生産性、食品安全を向上させることができ、従って（ C ）に繋がる」とも明記されている。", "options": {"ア": "A：国際自然保護連合（IUCN）　B：可能な限り最大限　C：経済的利益", "イ": "A：国際獣疫事務局（WOAH）　B：現実的な範囲で最大限　C：経済的利益", "ウ": "A：国際自然保護連合（IUCN）　B：現実的な範囲で最大限　C：動物の利益", "エ": "A：国際獣疫事務局（WOAH）　B：可能な限り最大限　C：動物の利益"}, "answer": "イ", "explanation": "A：国際獣疫事務局（WOAH）。B：現実的な範囲で最大限。C：経済的利益。", "ref": "Chapter 4.13 アニマルウェルフェア"}, {"num": 39, "theme": "LGBTQ", "text": "日本の「LGBTQ」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n企業の CSR 担当者は、LGBTQ に関して、国内外の最新情報の収集に努め、（ A ）な対応を検討することが求められる。東京オリンピック・パラリンピック組織委員会は、調達コードに（ B ）を明記し、同様の調達コードは大阪・関西万博でも採用された。2023 年６月には「LGBT 理解増進法」が施行され、企業には研修や相談などの（ C ）が課された。", "options": {"ア": "A：全社的　B：「性的指向」などによる差別禁止　C：努力義務", "イ": "A：局所的　B：LGBTQ に対する優遇策　C：努力義務", "ウ": "A：全社的　B：LGBTQ に対する優遇策　C：義務", "エ": "A：局所的　B：「性的指向」などによる差別禁止　C：義務"}, "answer": "ア", "explanation": "A：全社的。B：「性的指向」などによる差別禁止。C：努力義務。", "ref": "Chapter 4.14 LGBTQ"}, {"num": 40, "theme": "グリーンウォッシュ", "text": "企業や組織が、実際の取り組みよりも過大に気候変動対策やサステナビリティを主張して宣伝することを何というか、最も適切なものを一つ選べ。", "options": {"ア": "サーキュラーエコノミー", "イ": "グリーンウォッシュ", "ウ": "カーボンオフセット", "エ": "ネットポジティブ"}, "answer": "イ", "explanation": "実際の取り組みよりも過大にサステナビリティを主張して宣伝することを「グリーンウォッシュ」という。", "ref": "Chapter 4.15 グリーンウォッシュ"}]}, {"id": "exam22", "title": "第22回本試験", "subtitle": "サステナ経営検定３級 第22回試験（2026年5月24日実施）", "questions": [{"num": 1, "theme": "サステナ経営の定義", "text": "「サステナ経営」の定義である次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n①サステナビリティをあらゆる経営判断に組み込み、企業価値と（ A ）を同軸化し、社会課題の解決を通じて、事業創造すること。これにより、社会に存在する「未来の顧客」を顧客化することを含む。\n②サステナ領域で発生しがちなリスクを未然に防ぎ、そのリスクを機会に変え、（ B ）すること。\n③上記を実現するため（ C ）と対話を重ね、自社が社会においてより持続的な存在になることを目指すこと。", "options": {"ア": "A：国際的価値　B：利益を確保　C：さまざまなステークホルダー", "イ": "A：社会価値　B：競争優位を確立　C：さまざまなステークホルダー", "ウ": "A：国際的価値　B：競争優位を確立　C：複数の株主", "エ": "A：社会価値　B：利益を確保　C：複数の株主"}, "answer": "イ", "explanation": "A：社会価値。B：競争優位を確立。C：さまざまなステークホルダー。", "ref": "Chapter 1.1 サステナ経営の定義と目的"}, {"num": 2, "theme": "SDGsとサステナ経営", "text": "「SDGs とサステナ経営」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "SDGs は、先進国と開発途上国との間に存在する経済的不平等を是正することに特化したアジェンダである。", "イ": "SDGs は、「誰一人取り残さない」世界を実現しようとする壮大なチャレンジであり、2030 年を目標年に定めている。", "ウ": "SDGs は、2000 年に開催した国連サミットで採択されたアジェンダである。", "エ": "企業がサステナ経営を実現するためには、2011 年にマイケル・ポーター・ハーバード・ビジネススクール教授らが提唱した CSV（共有価値の創造）などのように、法令順守が大切である。"}, "answer": "イ", "explanation": "ア：経済的不平等の是正だけではなく、あらゆる形態の貧困に終止符を打ち、不平等と闘い、気候変動に対処するための取り組みである。ウ：2000 年に採択されたアジェンダは MDGs で、SDGs の採択は 2015 年の９月である。エ：法令順守ではなく、長期にわたる持続的なビジネスを視座に置き、ビジネスとして収益の確保に取り組むことが重要である。", "ref": "Chapter 1.2 SDGs とサステナ経営"}, {"num": 3, "theme": "サステナ経営の世界潮流", "text": "「サステナ経営の世界潮流」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "欧米企業の CSR の歴史を振り返ると、その背景には NGO／NPO や地域社会などのステークホルダーが密接にかかわっていたことが分かる。", "イ": "グローバル企業であるシェルの 1995 年の石油採掘用大型施設「ブレント・スパー」の処分に関する事件では、国際環境 NGO がシェルの環境への影響を追及したが、海洋投棄は計画通りに進んだ。", "ウ": "米スポーツメーカーのナイキは、1997 年に自社が直営する東南アジアの工場で起きた労働・人権問題が発覚して法的責任が追及され、経済的に大打撃を受けた。", "エ": "直接対話を持つ機会のない外国人などの移住労働者や先住民族などのライツホルダーは、ステークホルダーとは言えないので、企業は考慮をする必要はない。"}, "answer": "ア", "explanation": "イ：追及された結果、シェルは海洋投棄を断念することになった。ウ：労働・人権問題が発覚した東南アジアの工場は、ナイキの直営ではなく、委託先の工場である。また「法的責任」ではなく「社会的責任」を追及された事例である。エ：ライツホルダーへの影響も考慮することが企業に求められるようになってきている。", "ref": "Chapter 1.3 サステナ経営の世界潮流"}, {"num": 4, "theme": "大企業と中小企業のCSR", "text": "「大企業と中小企業の CSR」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "CSR 理解とモチベーション向上のためには、座学だけではなく、参加型の地域社会貢献や社内のコミュニケーションなどが重要だが、それがしやすいのは中小企業である。", "イ": "CSR は、ステークホルダーの期待やニーズを把握し、その取り組みをステークホルダーの評価や共感を呼ぶように効果的に伝えることが重要である。", "ウ": "中小企業は、地域や得意先など特定のターゲットに合わせた CSR への取り組みがしやすい。", "エ": "中小企業は資金や人材の制約が大きいので、効果的な CSR コミュニケーションを実現させることは不可能である。"}, "answer": "エ", "explanation": "制約が大きくても、NPO などと協働する「コレクティブ・インパクト」や社外の知恵を活用する「オープンイノベーション」など、NPO やプロボノ、他企業との連携によってシナジー効果を引き出すことで、興味深い取り組みが可能になる。", "ref": "Chapter 1.4 大企業と中小企業の CSR"}, {"num": 5, "theme": "石田梅岩の教え", "text": "次の文章のうち、江戸時代の思想家・石田梅岩の教えではないものはどれか。", "options": {"ア": "商人は利だけを追い求めて、義を知らない最も賤しい職業だと自覚すべし。", "イ": "今日の世界的企業にとっても経営の原点になっている「顧客満足の精神」。", "ウ": "商人としての倫理を身に付けてこそ、利益、富を得る資格がある。", "エ": "商売は、商売にかかわる全ての人々が満足するものでなくてはならない。"}, "answer": "ア", "explanation": "梅岩の教えではなく、士農工商の最下位に位置付けられた商人を武士たちがさげすんで言った内容である。", "ref": "COLUMN 1 伝統的な日本型 CSR の精神"}, {"num": 6, "theme": "コンプライアンスの本質", "text": "「コンプライアンスの本質」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "企業は関係法令（法律、政令、省令など）を順守していれば、コンプライアンス違反による不祥事を防止することができる。", "イ": "日本国内でビジネスを行う場合、「ビジネスと人権に関する指導原則」などの国際的イニシアティブはコンプライアンスの範囲外となる。", "ウ": "社会の常識・良識などの「社会規範の順守」に配慮し、ステークホルダーや社会からの要請に対応することが重要である。", "エ": "法的な拘束力のない社会的規範をハードローという。"}, "answer": "ウ", "explanation": "ア：関係法令の順守は「最低限の義務」で、「社内規範の順守」や「社会規範の順守」も重要である。イ：国際的イニシアティブもコンプライアンスの範疇に含まれる。エ：ハードローではなくソフトローである。", "ref": "Chapter 1.5 コンプライアンスの本質"}, {"num": 7, "theme": "GRIスタンダード", "text": "「サステナ報告書の役割と現状」に関する次の「GRI スタンダード」についての記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "GRI スタンダードは、CSR 活動に関して一定の水準を満たす組織に付与される第三者認証規格である。", "イ": "GRI スタンダードは、機関投資家が ESG 投資を行う際の手引きが示されたガイドラインである。", "ウ": "GRI スタンダードは、報告基準として世界中で最も活用され、標準となっている。", "エ": "GRI スタンダードは、企業がビジネスとして SDGs に取り組む際の戦略手法が示されたガイダンスである。"}, "answer": "ウ", "explanation": "GRI スタンダードは報告基準として世界中で最も活用され、標準となっている。", "ref": "Chapter 1.6 サステナ報告書の役割と現状"}, {"num": 8, "theme": "ISO26000", "text": "「ISO26000」の７つの原則に含まれていないものを一つ選べ。", "options": {"ア": "ステークホルダーの利害の尊重", "イ": "法の支配の尊重", "ウ": "ワーク・ライフ・バランスの尊重", "エ": "国際行動規範の尊重"}, "answer": "ウ", "explanation": "ISO26000 の７つの原則に「ワーク・ライフ・バランスの尊重」は含まれない。", "ref": "Chapter 1.7 ISO26000 とは何か"}, {"num": 9, "theme": "国連グローバル・コンパクト", "text": "「国連グローバル・コンパクト（UNGC）」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "UNGC には、企業のみならず労働組合、NGO、自治体などが署名している。", "イ": "UNGC は、人権、労働、環境、腐敗防止の４分野の原則で構成されている。", "ウ": "2000 年に国連で UNGC が発足された背景には、ナショナリズムの負の側面が目立ち、過激な民族主義の動きが出てきたことがある。", "エ": "国連グローバル・コンパクトに署名している企業は、取り組み状況についての報告書を年に１回提出することが義務付けられている。"}, "answer": "ウ", "explanation": "ナショナリズムではなく、グローバリゼーションの負の側面が目立ち、過激な反グローバリゼーションの動きが出てきたことである。", "ref": "Chapter 1.8 国連グローバル・コンパクト"}, {"num": 10, "theme": "ESG投資／サステナブル投資", "text": "「ESG 投資／サステナブル投資」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "サステナブル投資は、年金基金・金融機関・個人などの投資家が、自らの社会的役割を考えて、投資対象企業の社会課題への取り組みを評価して反映する投資である。", "イ": "サステナブル投資は、以前は企業の社会的責任の観点から「社会的責任投資（SRI）」と呼ばれていた。", "ウ": "最近では温室効果ガス（GHG）の排出量が大きい石炭や石炭火力発電関連企業の保有株式を売却する「ポジティブ・スクリーニング手法」の動きが世界的に広がっている。", "エ": "国連責任投資原則（PRI）は、投資の分析と意思決定で ESG も考慮する投資手法を広める取り組みである。"}, "answer": "ウ", "explanation": "ポジティブ・スクリーニング手法ではなくダイベストメントである。", "ref": "Chapter 1.9 ESG 投資／サステナブル投資"}, {"num": 11, "theme": "地方自治体のSDGs政策", "text": "「地方自治体の SDGs 政策」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "地方自治体は、地域のサステナビリティを実現するために「総合計画」に SDGs を実装するなどして自治体 SDGs に取り組んでいる。", "イ": "「SDGs 未来都市」は、観光名所を世界遺産に登録することを目的とした制度である。", "ウ": "「地方創生 SDGs 官民連携プラットフォーム」は、企業や大学、NPO など、多様なステークホルダーとの協働を深める場として設けられた。", "エ": "「広域連携 SDGs モデル事業」では、政府が複数の自治体の連携による SDGs の取り組みを選定して支援している。"}, "answer": "イ", "explanation": "「SDGs 未来都市」は、正しくは、全国の自治体の模範となる SDGs 達成への取り組みのモデル事例を創出するための制度である。", "ref": "Chapter 1.10 地方自治体の SDGs 政策"}, {"num": 12, "theme": "企業と社会の関係性", "text": "「企業と社会の関係性」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "1950 年代から 70 年代にかけて、日本社会は公害問題に直面し、消費者の自己責任論が浮上した。", "イ": "松下幸之助の言葉に「企業は社会の公器」という一節がある。これは、企業は社会に有益な価値を提供し、その見返りに利益と信頼を獲得して社会的存在を許されるという意味である。", "ウ": "ステークホルダーは必ずしも社会を代表しているのではなく、時には社会の利害と相反することもある。", "エ": "日本経済団体連合会（経団連）が「企業行動憲章」を制定し、会員企業に、高い倫理観を持ち法令順守を超えた社会的責任を認識してさまざまな社会課題の解決へ貢献することを働き掛けた。"}, "answer": "ア", "explanation": "消費者の自己責任論ではなく、企業の社会的責任論である。", "ref": "Chapter 2.1 企業と社会の関係性"}, {"num": 13, "theme": "社会における企業の役割", "text": "「社会における企業の役割」に関する記述のうち、最も適切な組み合わせを一つ選べ。\n\n１．ISO26000 では、社会的責任を「組織の決定及び活動が社会及び環境に及ぼす影響に対して、透明かつ倫理的な行動を通じて組織が担う責任」と定義している。\n２．企業の責任は企業が直接手を下さない資源の採掘や下請けの工場などのサプライチェーンには及ぶが、製品の使用や廃棄も含めたバリューチェーンにまでは及ばない。\n３．EU（欧州連合）は 2011 年に CSR を「企業の社会に与える影響（インパクト）に対する責任」と再定義し、企業には、環境や社会に対して起こり得る不都合な影響に対して回避や緩和する責任があることを明確にした。\n４．気候変動の原因である温室効果ガスの排出や熱帯雨林の破壊などは企業活動に直接関係ないので、企業の責任ではない。", "options": {"ア": "１と２", "イ": "３と４", "ウ": "１と３", "エ": "２と４"}, "answer": "ウ", "explanation": "２：バリューチェーンにも企業の責任は及ぶ。４：元をたどれば企業の経済活動に関係してくるため、企業には社会的責任が期待されている。", "ref": "Chapter 2.2 社会における企業の役割"}, {"num": 14, "theme": "ステークホルダーとは何か", "text": "「ステークホルダーとは何か」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "ISO26000 は、ステークホルダーを「組織の何らかの決定または活動に利害関係を持つ個人またはグループ」と定義し、具体的には取引先もこれに該当する。", "イ": "ステークホルダーとは株主、顧客、従業員、消費者などを指し、地域社会はこれに含まれない。", "ウ": "ステークホルダーの期待を把握し、経営に生かしていくためには、株価の上昇を最優先することであり、常に市場から尊敬されるマネジメントを実現することが重要である。", "エ": "声なき声を代弁する「既存のステークホルダー」という考え方があり、例えば将来世代のために環境保護を主張する NGO／NPO などがそれに該当する。"}, "answer": "ア", "explanation": "イ：地域社会も含まれる。ウ：継続的な意見交換や対話の場を設けるなど、ステークホルダーとの双方向のコミュニケーションが重要である。エ：「既存のステークホルダー」ではなく「代理のステークホルダー」である。", "ref": "Chapter 2.3 ステークホルダーとは何か"}, {"num": 15, "theme": "企業に求められる対話力", "text": "「企業に求められる対話力」に関する記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "コンプライアンスは、社会の期待や価値観の変化を受け入れるという点において、CSR とは本質的に異なっている。", "イ": "企業がコンプライアンス課題の解決策を模索する際には、多様なステークホルダーとの間で対話を繰り返し、自社の経済的利益を優先するように相手を説得する必要がある。", "ウ": "コンプライアンス課題の解決に向けて、企業には、異なる価値観を持つステークホルダーとの対話を通して落としどころを模索し、行動のガイドラインを共同で作成するなど、ルールの創造を進めていくことが求められる。", "エ": "法令などの規制を巡るコンプライアンス課題については、できるだけ単純化して理解し、画一的な解決策を見つけることが望ましい。"}, "answer": "ウ", "explanation": "ア：社会の期待や価値観の変化を受け入れるという点では、本質は同じである。イ：一方的な説得ではなく、異なる価値観を相互に受け入れながら、解決のための落としどころを模索し、「話の着地点」を見つけることが重要である。エ：法令などの規制は、社会の価値観を規範化・文書化したものにすぎないため、単純化して画一的な解決策を見つけるのは難しい。", "ref": "Chapter 2.4 企業に求められる対話力"}, {"num": 16, "theme": "トリプルボトムライン", "text": "「トリプルボトムライン（TBL）」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "TBL の言葉の由来は会計用語から来ている。", "イ": "TBL とは、環境的側面、社会的側面、文化的側面に配慮したバランスの良い経営を行うこと、と解釈されている。", "ウ": "社会的側面の例として、人権、労働慣行とディーセントワーク、地域コミュニティーなどが挙げられる。", "エ": "サステナビリティ報告書の実質的な国際基準である GRI も、トリプルボトムラインの概念を取り入れている。"}, "answer": "イ", "explanation": "文化的側面ではなく、経済的側面である。", "ref": "Chapter 2.6 トリプルボトムラインとは"}, {"num": 17, "theme": "2030アジェンダの中心", "text": "2015 年に採択された「我々の世界を変革する：持続可能な開発のための 2030 アジェンダ」の中心は何か、最も適切なものを一つ選べ。", "options": {"ア": "17 の目標と 169 のターゲットからなる SDGs", "イ": "世界各国の環境法の統一化", "ウ": "先進国による ODA の増加計画", "エ": "世界遺産の登録制度の拡充"}, "answer": "ア", "explanation": "2030 アジェンダの中心は、17 の目標と 169 のターゲットからなる SDGs である。", "ref": "Chapter 2.7 社会課題と SDGs"}, {"num": 18, "theme": "気候変動交渉の動き", "text": "「気候変動交渉の動き」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "2015 年の COP21 では、2020 年以降の国際枠組み「パリ協定」が採択された。", "イ": "開発途上国からロス＆ダメージに対処するための資金・技術面でのニーズが大きくなっているので、企業の貢献が必要だ。", "ウ": "気候変動の緩和策として、先進国の対策は十分なので、拡大する開発途上国の GHG（温室効果ガス）排出削減が重要である。", "エ": "近年、ESG 金融が国内外で急拡大し、GHG 排出量の削減や適応策へのファイナンスを促進しようとする動きも広がっている。"}, "answer": "ウ", "explanation": "先進国も排出削減が重要であり、対策は十分とはいえない。", "ref": "Chapter 4.1 気候変動交渉の動き"}, {"num": 19, "theme": "企業の社会貢献と寄付", "text": "日本の「企業の社会貢献と寄付」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "「寄付白書プラス 2024」によると、個人寄付の推計総額はこの 10 年で減少し、寄付総額もまだ１兆円には達していない。", "イ": "東日本大震災以降、寄付を行う人の割合は増加傾向にある。", "ウ": "課題の根本的解決のためには「セルフ・エフォート」で地域力を高める視点が重要である。", "エ": "顔の見える関係での NPO 支援は、社会貢献にはなるが従業員の社会性獲得や人材育成としての有効性はない。"}, "answer": "イ", "explanation": "ア：総額は約１兆 2000 億円で、減少ではなく 10 年前の 2.5 倍に拡大している。ウ：「セルフ・エフォート」ではなく「コレクティブ・インパクト」である。エ：従業員の社会性獲得や人材育成にも有効性があるとして関心が持たれている。", "ref": "Chapter 2.8 企業の社会貢献と寄付"}, {"num": 20, "theme": "世界人権宣言第1条", "text": "人権に関する最も基本的な文書である世界人権宣言の第 1 条は「すべての人間は、生まれながらにして自由であり、尊厳と（　）において平等である」と定めている。空欄に該当する語句として、最も適切なものを一つ選べ。", "options": {"ア": "法の下の保護", "イ": "権利", "ウ": "責任", "エ": "義務教育"}, "answer": "イ", "explanation": "世界人権宣言第１条は「すべての人間は、生まれながらにして自由であり、尊厳と権利において平等である」と定めている。", "ref": "Chapter 2.9 ビジネスと人権"}, {"num": 21, "theme": "社会とつながる働き方", "text": "日本の「社会とつながる働き方」に関する次の文章の空欄に該当する語句・数として、最も適切な組み合わせを一つ選べ。\n\n2019 年４月から順次施行されている（ A ）は、「時間外労働の上限規則」（原則月（ B ）時間）をはじめとした長時間労働の是正や、（ C ）の拡充といった多様な働き方などを盛り込んでいる。", "options": {"ア": "A：労働組合法　B：80　C：フレックスタイム制", "イ": "A：労働組合法　B：45　C：コアタイム制", "ウ": "A：働き方改革関連法　B：80　C：コアタイム制", "エ": "A：働き方改革関連法　B：45　C：フレックスタイム制"}, "answer": "エ", "explanation": "A：働き方改革関連法。B：45（時間外労働の上限規制は原則月 45 時間）。C：フレックスタイム制。", "ref": "Chapter 3.1 社会とつながる働き方"}, {"num": 22, "theme": "NGO／NPOとは", "text": "日本の「NGO／NPO とは」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n①NPO とは（ A ）を目的とした市民の自発的な組織である。\n②1998 年に施行された「特定非営利活動促進法（NPO 法）」は、NPO に（ B ）を与えることを目的とした。\n③従来の「公助」や「自助」では解決できない課題に対し、市民自ら取り組むことを（ C ）という。", "options": {"ア": "A：社会課題の解決　B：法人格　C：共助", "イ": "A：利益の分配　B：補助金　C：介助", "ウ": "A：利益の分配　B：法人格　C：共助", "エ": "A：社会課題の解決　B：補助金　C：介助"}, "answer": "ア", "explanation": "A：社会課題の解決。B：法人格。C：共助。", "ref": "Chapter 3.2 NGO／NPO とは"}, {"num": 23, "theme": "企業とNPOが協働する意義", "text": "「企業と NPO が協働する意義」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "企業が NPO に資金や労力を提供する活動は、企業による一方向的な取り組みであるために協働とはいえない。", "イ": "企業が NPO と協働することで得られる成果として、従業員の能力開発に役立つと考えている企業は少ない。", "ウ": "企業が NPO と協働することで、イメージアップなどの成果はあっても、本業への貢献にはつながらない。", "エ": "企業と NPO が協働することによって、当事者だけでなく社会にとっても、課題解決や意識の変化、地域の活性化などの副産物が生まれる。"}, "answer": "エ", "explanation": "ア：「チャリティ型」の協働として位置付けることができる。イ：役立つという実感を持つ企業は増えている。ウ：内容によっては本業への貢献になることもある。", "ref": "Chapter 3.3 企業と NPO が協働する意義"}, {"num": 24, "theme": "ワーク・ライフ・バランス", "text": "日本の「ワーク・ライフ・バランス（WLB）」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n2003 年に（ A ）が施行されて以降、企業は男性の育児休業取得にも熱心に取り組むようになった。同法に基づき一定の要件を満たした企業は、申請により「（ B ）」として厚生労働大臣の認定（ C ）を受けることができる。", "options": {"ア": "A：男女雇用機会均等法　B：子育てサポート企業　C：えるぼしマーク", "イ": "A：次世代育成支援対策推進法　B：男女共同参画企業　C：えるぼしマーク", "ウ": "A：次世代育成支援対策推進法　B：子育てサポート企業　C：くるみんマーク", "エ": "A：男女雇用機会均等法　B：男女共同参画企業　C：くるみんマーク"}, "answer": "ウ", "explanation": "A：次世代育成支援対策推進法。B：子育てサポート企業。C：くるみんマーク。", "ref": "Chapter 3.5 ワーク・ライフ・バランス"}, {"num": 25, "theme": "プロボノ", "text": "「プロボノ」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n弁護士が社会的弱者の法律相談に乗ったり、医師が海外の医療支援にボランティアで参加したりすることは、プロボノと（ A ）。日本では（ B ）が「プロボノ元年」と呼ばれ、認知や関心が高まって参加者も広がった。企業は NPO を支援しながら、サステナ推進や人材育成などの面で効果が期待でき、また、本業の強みを生かした社会貢献や（ C ）にもつなげることができる。", "options": {"ア": "A：いえる　B：2010 年　C：イノベーション", "イ": "A：いえない　B：2000 年　C：売上向上", "ウ": "A：いえる　B：2010 年　C：売上向上", "エ": "A：いえない　B：2000 年　C：イノベーション"}, "answer": "ア", "explanation": "A：いえる。B：2010 年（プロボノ元年）。C：イノベーション。", "ref": "COLUMN 5「プロボノ」とは何か"}, {"num": 26, "theme": "SDGsと消費行動", "text": "日本の「SDGs と消費行動」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n2012 年に制定された（ A ）は、消費者教育の推進を（ B ）の義務と定め、「消費者市民社会」の実現を理念に掲げている。従来の消費者教育は、消費者の保護にとどまりがちであったが、今後は消費者が高度に自立して、自発的に（ C ）社会的な消費観のための教育が必要である。", "options": {"ア": "A：消費者基本法　B：行政　C：自身を守る", "イ": "A：消費者教育推進法　B：株主　C：自身を守る", "ウ": "A：消費者基本法　B：株主　C：社会に働き掛ける", "エ": "A：消費者教育推進法　B：行政　C：社会に働き掛ける"}, "answer": "エ", "explanation": "A：消費者教育推進法。B：行政（の義務）。C：社会に働き掛ける。", "ref": "Chapter 3.6 SDGs と消費行動"}, {"num": 27, "theme": "SBTi", "text": "「企業と脱炭素」に関する次の記述のうち、SBTi（サイエンス・ベースド・ターゲット・イニシアティブ）」の目的として、最も適切なものを一つ選べ。", "options": {"ア": "科学的根拠に基づいて企業の温室効果ガス（GHG）排出削減目標を設定することを促す。", "イ": "企業の利益を最大化する投資戦略を示す。", "ウ": "政府が企業の GHG 排出量を規制するための法律を作る。", "エ": "企業によって異なっていた GHG 排出量の測定方法を統一する。"}, "answer": "ア", "explanation": "SBTi は、企業に対しパリ協定に沿った科学的知見と整合した目標（SBT）の設定を促す国際的な枠組みである。", "ref": "Chapter 4.2 企業と脱炭素"}, {"num": 28, "theme": "生物多様性", "text": "「生物多様性」に関する次の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n①生物多様性は経済や人間社会を根底で支えていることも認識されるようになり、生物多様性の危機は、（ A ）と並ぶサステナビリティの二大課題となっている。\n②生物多様性は、企業活動を支える重要な（ B ）である。\n③TCFD の生物多様性版というべき（ C ）が 2023 年９月に最終提言を発表し、これに沿って情報開示をする企業が世界的に増えている。", "options": {"ア": "A：気候危機　B：社会資本　C：GRI スタンダード", "イ": "A：気候危機　B：自然資本　C：自然関連財務情報開示タスクフォース", "ウ": "A：経済危機　B：社会資本　C：自然関連財務情報開示タスクフォース", "エ": "A：経済危機　B：自然資本　C：GRI スタンダード"}, "answer": "イ", "explanation": "A：気候危機。B：自然資本。C：自然関連財務情報開示タスクフォース（TNFD）。", "ref": "Chapter 4.3 生物多様性"}, {"num": 29, "theme": "世界の貧困と児童労働", "text": "「世界の貧困と児童労働」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "SDGs は前身である MDGs と同様に、すべての国を対象としており、目標やターゲットの範囲にも違いはない。", "イ": "国際労働機関（ILO）などによれば、世界の児童労働者数は約 300 万人（2025 年）と推計されている。", "ウ": "児童労働とは、基本的に 15 歳未満の違法労働と、15 歳以上 18 歳未満の危険有害労働を指しており、家の手伝いや新聞配達などの軽易な労働は含まれない。", "エ": "世界の児童労働者数は 2000 年以降から一貫して減少し続けており、児童労働の問題は解決に向かいつつある。"}, "answer": "ウ", "explanation": "ア：約 300 万人ではなく 1 億 3800 万人と推計されている。イ：MDGs は主に開発途上国が対象で、目標数やターゲットの範囲も限られていた。エ：減少傾向にあったが、2020 年に増加した。2024 年に再び減少したが、課題が顕著なサハラ以南アフリカ地域は依然増加傾向が続いている。", "ref": "Chapter 4.4 世界の貧困と児童労働"}, {"num": 30, "theme": "エシカルなビジネス", "text": "「エシカルなビジネス」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "「エシカル」とは、今日的には社会や環境への配慮を表す意識や価値観、ライフスタイルを表す言葉として使われ始めているが、この流れは米国に端を発したといわれている。", "イ": "2015 年の SDGs の採択後には、「エシカルで売れるのか」というテーマがより熱心に議論されるようになった。", "ウ": "2020 年のコロナ禍において、衛生製品の買い占めや転売が社会問題化し、「消耗品を大事に使う」「社会全体を考えて消費行動を選ぶ」などの意識変化や行動につながった。", "エ": "専門誌「エシカルコンシューマー」調べでは、2023 年の英国のエシカル市場は 1999 年から 8.3 倍に拡大している一方で、同国の家庭での年間エシカル消費はほとんど変化していない。"}, "answer": "ウ", "explanation": "ア：米国ではなく英国に端を発したといわれている。イ：採択後は「エシカルであることはビジネスの前提」となった。エ：家庭での消費も８倍に成長している。", "ref": "Chapter 4.5 エシカルなビジネス"}, {"num": 31, "theme": "フェアトレード", "text": "「フェアトレード」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "生産者の持続可能な生産コストをカバーするために「フェアトレード最低価格」を定めているのは、世界貿易機関である。", "イ": "フェアトレードは生産者側だけでなく、消費国側のビジネスにとっても、サプライチェーンの持続可能性に有効であるとされている。", "ウ": "「援助ではなく貿易を（Trade not Aid）」は、1968 年に国際連合貿易開発会議（UNCTAD）で開発途上国側から提案されたスローガンである。", "エ": "コーヒー豆の買い取り価格は、生産現場とは遠く離れたニューヨークとロンドンの国際市場で決められている。"}, "answer": "ア", "explanation": "世界貿易機関ではなく、国際フェアトレードラベル機構である。", "ref": "Chapter 4.6 フェアトレード"}, {"num": 32, "theme": "日本の有機農業", "text": "日本の「有機農業」に関する次の記述のうち、最も適切な組み合わせを一つ選べ。\n\n１．日本での有機農業は遅れていたが、SDGs が採択されたことでその普及に注目が集まっている。\n２．有機農業は、地球温暖化抑制効果としての CO2 の貯留効果が高い。\n３．有機農業には、生物多様性維持への効果はない。\n４．2021 年に農林水産省が「みどりの食料システム戦略」を策定したが、同戦略を実現するための法制度はまだ整っていない。", "options": {"ア": "１と２", "イ": "１と４", "ウ": "２と３", "エ": "３と４"}, "answer": "ア", "explanation": "３：生物多様性維持の効果についての有機農業の優位性に関する研究成果がある。４：2022 年に「みどりの食料システム法」として施行されている。", "ref": "Chapter 4.7 オーガニック／有機農業"}, {"num": 33, "theme": "第7次エネルギー基本計画", "text": "日本政府が 2025 年に閣議決定した「第７次エネルギー基本計画」で見込んでいる 2040 年度の主要な自然エネルギーの電源の割合として、最も適切な組み合わせを一つ選べ。（太陽光／風力／水力）", "options": {"ア": "８〜10％／４〜８％／23〜29％", "イ": "４〜８％／23〜29％／８〜10％", "ウ": "23〜29％／４〜８％／８〜10％", "エ": "４〜８％／８〜10％／23〜29％"}, "answer": "ウ", "explanation": "第７次エネルギー基本計画が見込む 2040 年度の電源割合は、太陽光 23〜29％、風力４〜８％、水力８〜10％。", "ref": "Chapter 4.8 自然エネルギーと RE100"}, {"num": 34, "theme": "障がい者雇用", "text": "日本の「障がい者雇用」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "障害者雇用促進法で定められた法定雇用率は、2024 年 10 月現在、「民間企業」「国・地方公共団体など」「都道府県などの教育委員会」のいずれも 2.8％に引き上げられた。", "イ": "2016 年４月に改正障害者雇用促進法が施行され、障がい者と障がい者でない人との均等な機会を確保することが義務付けられた。", "ウ": "わが国では、障がい者は「身体障がい者」「知的障がい者」の２区分に分けられている。", "エ": "2024 年の「障害者雇用状況の集計結果」によれば、法律で雇用を義務付けられた民間企業における雇用障がい者数が、前年より減少した。"}, "answer": "イ", "explanation": "ア：国・地方公共団体などは 2.8％だが、民間企業は 2.5％で、都道府県などの教育委員会は 2.7％である。ウ：精神障がい者を含めた３区分である。エ：前年より 5.5％増加して過去最高を更新している。", "ref": "Chapter 4.9 障がい者雇用"}, {"num": 35, "theme": "ソーシャルビジネス", "text": "「ソーシャルビジネス」に関する次の記述のうち、最も不適切なものを一つ選べ。", "options": {"ア": "企業の持つ「経済的目的」と「社会的目的」のうち、「社会的目的」の比重が高い経済活動のことをソーシャルビジネスという。", "イ": "世界的に有名なソーシャルビジネスの例は、ムハマド・ユヌス氏が創設したグラミン銀行である。", "ウ": "多くの国で政府の財政収支が厳しい状況にあることなどを背景に、ソーシャルビジネスの存在感は高まっている。", "エ": "ソーシャルビジネスの担い手は NGO や NPO などの非営利団体に限られる。"}, "answer": "エ", "explanation": "企業（株式会社や合同会社）や協同組合、民間と行政による第三セクター的な事業体によるものもある。", "ref": "Chapter 4.10 ソーシャルビジネス"}, {"num": 36, "theme": "プラスチック資源循環戦略", "text": "日本政府が 2019 年に策定した「プラスチック資源循環戦略」の基本原則または目標に該当するものはどれか。", "options": {"ア": "３R＋リニューアブル（再生可能）", "イ": "ワンウェイプラスチック利用の推進", "ウ": "プラスチックの焼却率向上", "エ": "使い捨てしやすいデザイン設計"}, "answer": "ア", "explanation": "「３R＋リニューアブル」の基本原則と「2030 年までにワンウェイプラスチックを累積 25％削減」「2025 年までにリユース・リサイクル可能なデザインに」などの目標が設定された。", "ref": "Chapter 4.11 サーキュラーエコノミー"}, {"num": 37, "theme": "海洋プラスチックごみ問題", "text": "「海洋プラスチックごみ問題」に関する次の記述のうち、最も適切なものを一つ選べ。", "options": {"ア": "世界的には使い捨てプラスチックに関する規制が進む一方で、日本国内では事業者に対し、プラスチックごみの排出抑制を義務付けていない。", "イ": "国連環境計画（UNEP）が 2018 年に発表した報告書では、人口 1 人当たりのプラスチック容器包装廃棄量は、1 位が米国、2 位がフィンランド、3 位が中国となっている。", "ウ": "海に流出したプラスチック類は、技術的に海や海岸からすべて回収することが可能である。", "エ": "2016 年のダボス会議では「海洋プラスチックの総量が 2050 年までに海の魚類の重量を上回る」と発表された。"}, "answer": "エ", "explanation": "ア：2022 年４月から対象 12 品目のプラスチック製品を年間５㌧以上取り扱う事業者にプラごみの排出抑制が義務付けられた。イ：２位はフィンランドではなく、日本である。ウ：海や海岸から全てを回収することはほぼ不可能である。", "ref": "Chapter 4.12 海洋プラスチックごみ問題"}, {"num": 38, "theme": "アニマルウェルフェア", "text": "「アニマルウェルフェア」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n（ A ）は、科学的根拠に基づき最低限の動物福祉基準を規定しており、その原則には「動物の利用には、（ B ）その動物の福祉を確保する倫理的責任が伴っている」と書かれている。さらに、畜産動物の福祉は「生産性、食品安全を向上させることができ、従って（ C ）に繋がる」とも明記されている。", "options": {"ア": "A：国際自然保護連合（IUCN）　B：可能な限り最大限　C：経済的利益", "イ": "A：国際獣疫事務局（WOAH）　B：現実的な範囲で最大限　C：経済的利益", "ウ": "A：国際自然保護連合（IUCN）　B：現実的な範囲で最大限　C：動物の利益", "エ": "A：国際獣疫事務局（WOAH）　B：可能な限り最大限　C：動物の利益"}, "answer": "イ", "explanation": "A：国際獣疫事務局（WOAH）。B：現実的な範囲で最大限。C：経済的利益。", "ref": "Chapter 4.13 アニマルウェルフェア"}, {"num": 39, "theme": "LGBTQ", "text": "日本の「LGBTQ」に関する次の文章の空欄に該当する語句として、最も適切な組み合わせを一つ選べ。\n\n企業の CSR 担当者は、LGBTQ に関して、国内外の最新情報の収集に努め、（ A ）な対応を検討することが求められる。東京オリンピック・パラリンピック組織委員会は、調達コードに（ B ）を明記し、同様の調達コードは大阪・関西万博でも採用された。2023 年６月には「LGBT 理解増進法」が施行され、企業には研修や相談などの（ C ）が課された。", "options": {"ア": "A：全社的　B：「性的指向」などによる差別禁止　C：努力義務", "イ": "A：局所的　B：LGBTQ に対する優遇策　C：努力義務", "ウ": "A：全社的　B：LGBTQ に対する優遇策　C：義務", "エ": "A：局所的　B：「性的指向」などによる差別禁止　C：義務"}, "answer": "ア", "explanation": "A：全社的。B：「性的指向」などによる差別禁止。C：努力義務。", "ref": "Chapter 4.14 LGBTQ"}, {"num": 40, "theme": "グリーンウォッシュ", "text": "企業や組織が実際の取り組みよりも過大に気候変動対策やサステナビリティを主張して宣伝することを何というか。", "options": {"ア": "サーキュラーエコノミー", "イ": "グリーンウォッシュ", "ウ": "カーボンオフセット", "エ": "ネットポジティブ"}, "answer": "イ", "explanation": "実際の取り組みよりも過大にサステナビリティを主張して宣伝することを「グリーンウォッシュ」という。", "ref": "Chapter 4.15 グリーンウォッシュ"}]}];
+
+let state = {
+  examIndex: 0,
+  qIndex: 0,
+  answers: [], // {selected, correct}
+  answered: false
+};
+
+const screenStart = document.getElementById('screen-start');
+const screenQuiz = document.getElementById('screen-quiz');
+const screenResult = document.getElementById('screen-result');
+
+function showScreen(el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ---- Build start screen exam cards ----
+function renderExamList(){
+  const list = document.getElementById('exam-list');
+  list.innerHTML = '';
+  EXAMS.forEach((exam, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'exam-card';
+    card.innerHTML = `
+      <div class="tag">${idx===0 ? 'MOCK EXAM' : 'OFFICIAL EXAM'}</div>
+      <h2>${exam.title}</h2>
+      <p class="sub">${exam.subtitle}</p>
+      <div class="meta">
+        <span>全${exam.questions.length}問・一問一答形式</span>
+        <div class="go">はじめる
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', ()=> startExam(idx));
+    list.appendChild(card);
+  });
+}
+
+function startExam(idx){
+  state.examIndex = idx;
+  state.qIndex = 0;
+  state.answers = new Array(EXAMS[idx].questions.length).fill(null);
+  state.answered = false;
+  renderProgress();
+  renderQuestion();
+  showScreen(screenQuiz);
+}
+
+function renderProgress(){
+  const exam = EXAMS[state.examIndex];
+  const track = document.getElementById('progress-track');
+  track.innerHTML = '';
+  exam.questions.forEach((_, i)=>{
+    const seg = document.createElement('div');
+    seg.className = 'progress-seg';
+    if(i < state.qIndex) seg.classList.add('done');
+    else if(i === state.qIndex) seg.classList.add('current');
+    track.appendChild(seg);
+  });
+  document.getElementById('hdr-exam-name').textContent = exam.title;
+  document.getElementById('hdr-qnum').textContent = state.qIndex+1;
+  document.getElementById('hdr-qtotal').textContent = exam.questions.length;
+}
+
+function renderQuestion(){
+  const exam = EXAMS[state.examIndex];
+  const q = exam.questions[state.qIndex];
+  state.answered = false;
+  document.getElementById('q-theme').textContent = q.theme;
+  document.getElementById('q-text').textContent = q.text;
+  const optWrap = document.getElementById('q-options');
+  optWrap.innerHTML = '';
+  const order = ['ア','イ','ウ','エ'];
+  order.forEach(lab=>{
+    if(!(lab in q.options)) return;
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.dataset.lab = lab;
+    div.innerHTML = `<span class="lab">${lab}</span><span>${q.options[lab]}</span>`;
+    div.addEventListener('click', ()=> selectAnswer(lab));
+    optWrap.appendChild(div);
+  });
+  document.getElementById('explain-panel').classList.remove('show');
+  renderProgress();
+}
+
+function selectAnswer(lab){
+  if(state.answered) return;
+  state.answered = true;
+  const exam = EXAMS[state.examIndex];
+  const q = exam.questions[state.qIndex];
+  const correct = (lab === q.answer);
+  state.answers[state.qIndex] = { selected: lab, correct: correct };
+
+  document.querySelectorAll('.option').forEach(opt=>{
+    opt.classList.add('disabled');
+    const l = opt.dataset.lab;
+    if(l === q.answer){ opt.classList.add('correct'); }
+    else if(l === lab){ opt.classList.add('wrong'); }
+    else { opt.classList.add('faded'); }
+  });
+
+  document.getElementById('verdict-badge').textContent = correct ? '正解' : '不正解';
+  document.getElementById('verdict-badge').className = 'verdict-badge ' + (correct ? 'ok' : 'ng');
+  document.getElementById('explain-answer').textContent = q.answer + '　' + q.options[q.answer];
+  document.getElementById('explain-text').textContent = q.explanation;
+  document.getElementById('explain-ref').textContent = '公式テキスト参照：' + q.ref;
+
+  const panel = document.getElementById('explain-panel');
+  requestAnimationFrame(()=> panel.classList.add('show'));
+}
+
+document.getElementById('btn-next').addEventListener('click', ()=>{
+  const exam = EXAMS[state.examIndex];
+  document.getElementById('explain-panel').classList.remove('show');
+  setTimeout(()=>{
+    if(state.qIndex < exam.questions.length - 1){
+      state.qIndex++;
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 200);
+});
+
+function showResult(){
+  const exam = EXAMS[state.examIndex];
+  const correctCount = state.answers.filter(a=>a && a.correct).length;
+  document.getElementById('result-exam-name').textContent = exam.title + ' — RESULT';
+  document.getElementById('result-score').textContent = correctCount;
+  const grid = document.getElementById('rgrid');
+  grid.innerHTML = '';
+  state.answers.forEach((a,i)=>{
+    const cell = document.createElement('div');
+    cell.className = 'cell ' + (a && a.correct ? 'ok' : 'ng');
+    cell.textContent = i+1;
+    cell.addEventListener('click', ()=> openReview(i));
+    grid.appendChild(cell);
+  });
+  showScreen(screenResult);
+}
+
+function openReview(i){
+  const exam = EXAMS[state.examIndex];
+  const q = exam.questions[i];
+  const a = state.answers[i];
+  const sheet = document.getElementById('review-sheet');
+  const order = ['ア','イ','ウ','エ'];
+  let optsHtml = '';
+  order.forEach(lab=>{
+    if(!(lab in q.options)) return;
+    let cls = '';
+    if(lab === q.answer) cls = 'correct';
+    else if(a && lab === a.selected) cls = 'wrong';
+    optsHtml += `<div class="ropt ${cls}">${lab}．${q.options[lab]}</div>`;
+  });
+  sheet.innerHTML = `
+    <button class="close-x" id="review-close">✕</button>
+    <div class="rq-theme">問${q.num}　${q.theme}</div>
+    <div class="rq-text">${q.text}</div>
+    ${optsHtml}
+    <div class="rexp"><strong>${a && a.correct ? '正解' : '不正解'}</strong>／正答：${q.answer}<br><br>${q.explanation}</div>
+    <div class="rref">公式テキスト参照：${q.ref}</div>
+  `;
+  document.getElementById('review-overlay').classList.add('show');
+  document.getElementById('review-close').addEventListener('click', ()=>{
+    document.getElementById('review-overlay').classList.remove('show');
+  });
+}
+
+document.getElementById('review-overlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'review-overlay') e.target.classList.remove('show');
+});
+
+document.getElementById('btn-retry').addEventListener('click', ()=> startExam(state.examIndex));
+document.getElementById('btn-home').addEventListener('click', ()=> showScreen(screenStart));
+
+renderExamList();
+</script>
+</body>
+</html>
