@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>サステナ経営検定３級 一問一答</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,15 +58,15 @@
   }
   .quiz-header .exam-name{
     font-family:"Shippori Mincho", serif;
-    font-size:14px; letter-spacing:.04em; color: var(--gold-soft);
+    font-size:17px; letter-spacing:.04em; color: var(--gold-soft);
   }
   .quiz-header .qnum{
     font-family:"Shippori Mincho", serif;
-    font-size:15px; font-weight:700;
+    font-size:18px; font-weight:700;
   }
-  .quiz-header .qnum b{ font-size:20px; color: var(--gold-soft); }
+  .quiz-header .qnum b{ font-size:26px; color: var(--gold-soft); }
   .progress-track{
-    display:flex; gap:3px; height:5px;
+    display:flex; gap:3px; height:7px;
   }
   .progress-seg{ flex:1; background: rgba(255,255,255,0.16); border-radius:2px; overflow:hidden;}
   .progress-seg.done{ background: var(--gold); }
@@ -96,19 +96,19 @@
     border-radius:50%;
   }
   .hero .eyebrow{
-    font-size:12.5px; color: var(--gold-soft); letter-spacing:.14em; margin-bottom:14px;
+    font-size:13px; color: var(--gold-soft); letter-spacing:.12em; margin-bottom:16px;
   }
   .hero h1{
     font-family:"Shippori Mincho", serif;
     font-weight:700;
-    font-size:30px;
+    font-size:34px;
     line-height:1.5;
-    margin:0 0 14px;
+    margin:0 0 16px;
     position:relative; z-index:1;
   }
   .hero p{
-    font-size:13.5px; line-height:1.9; color: rgba(243,239,228,0.8); margin:0;
-    max-width: 320px;
+    font-size:16px; line-height:1.9; color: rgba(243,239,228,0.85); margin:0;
+    max-width: 340px;
     position:relative; z-index:1;
   }
   .exam-list{ padding: 24px 20px 40px; display:flex; flex-direction:column; gap:14px; }
@@ -124,55 +124,55 @@
   .exam-card:active{ transform: scale(0.98); }
   .exam-card .tag{
     display:inline-block;
-    font-size:11px;
+    font-size:12px;
     color: var(--gold);
     border:1px solid var(--gold);
-    padding:2px 8px;
+    padding:3px 9px;
     border-radius: 2px;
-    margin-bottom:10px;
+    margin-bottom:12px;
     letter-spacing:.05em;
   }
   .exam-card h2{
     font-family:"Shippori Mincho", serif;
-    font-size:19px; margin:0 0 6px; color: var(--navy);
+    font-size:23px; margin:0 0 8px; color: var(--navy);
   }
   .exam-card .sub{
-    font-size:12.5px; color:#6b6558; margin:0 0 14px; line-height:1.6;
+    font-size:15px; color:#6b6558; margin:0 0 16px; line-height:1.7;
   }
   .exam-card .meta{
     display:flex; justify-content:space-between; align-items:center;
-    border-top:1px solid var(--line); padding-top:12px;
+    border-top:1px solid var(--line); padding-top:14px;
   }
-  .exam-card .meta span{ font-size:12px; color:#8a8374; }
+  .exam-card .meta span{ font-size:14px; color:#8a8374; }
   .exam-card .go{
-    font-size:13px; font-weight:600; color: var(--navy);
+    font-size:15px; font-weight:600; color: var(--navy);
     display:flex; align-items:center; gap:6px;
   }
-  .exam-card .go svg{ width:14px; height:14px; }
+  .exam-card .go svg{ width:16px; height:16px; }
 
   .footnote{
-    padding: 0 24px 34px; font-size:11px; color:#8a8374; line-height:1.8;
+    padding: 0 24px 34px; font-size:12.5px; color:#8a8374; line-height:1.9;
   }
 
   /* ===== QUESTION SCREEN ===== */
-  .q-body{ padding: 22px 20px 140px; flex:1; }
+  .q-body{ padding: 22px 18px 150px; flex:1; }
   .q-theme{
-    font-size:12px; color: var(--gold); font-weight:600; margin-bottom:8px; letter-spacing:.03em;
+    font-size:14px; color: var(--gold); font-weight:600; margin-bottom:10px; letter-spacing:.03em;
   }
   .q-text{
     font-family:"Shippori Mincho", serif;
-    font-size:17px; line-height:1.85; color: var(--navy); margin: 0 0 22px;
+    font-size:21px; line-height:1.85; color: var(--navy); margin: 0 0 24px;
     white-space: pre-line;
   }
-  .options{ display:flex; flex-direction:column; gap:10px; }
+  .options{ display:flex; flex-direction:column; gap:12px; }
   .option{
     background:#fff;
     border:1.5px solid var(--line);
-    border-radius:2px;
-    padding:14px 16px;
-    display:flex; gap:12px; align-items:flex-start;
+    border-radius:3px;
+    padding:16px 16px;
+    display:flex; gap:13px; align-items:flex-start;
     cursor:pointer;
-    font-size:14.5px; line-height:1.7;
+    font-size:18px; line-height:1.7;
     transition: border-color .12s ease, background .12s ease;
   }
   .option:active{ background: var(--paper-2); }
@@ -180,11 +180,12 @@
     font-family:"Shippori Mincho", serif;
     font-weight:700; color: var(--navy);
     flex-shrink:0;
-    width:22px; height:22px;
+    width:28px; height:28px;
     border:1.5px solid var(--navy);
     border-radius:50%;
     display:flex; align-items:center; justify-content:center;
-    font-size:12.5px;
+    font-size:15px;
+    margin-top:1px;
   }
   .option.disabled{ pointer-events:none; }
   .option.correct{ border-color: var(--correct); background: var(--correct-bg); }
@@ -207,25 +208,25 @@
     z-index: 20;
   }
   .explain-panel.show{ transform: translateY(0); }
-  .explain-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .explain-head{ display:flex; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
   .verdict-badge{
     font-family:"Shippori Mincho", serif;
-    font-weight:700; font-size:14px;
-    padding: 4px 12px; border-radius: 2px;
+    font-weight:700; font-size:17px;
+    padding: 6px 14px; border-radius: 2px;
   }
   .verdict-badge.ok{ background: var(--correct); color:#fff; }
   .verdict-badge.ng{ background: var(--incorrect); color:#fff; }
-  .explain-head .ans{ font-size:12.5px; color: var(--gold-soft); }
+  .explain-head .ans{ font-size:15px; color: var(--gold-soft); line-height:1.5; }
   .explain-text{
-    font-size:13.5px; line-height:1.85; color: rgba(243,239,228,0.92);
-    max-height: 28vh; overflow-y:auto; margin-bottom:14px; padding-right:4px;
+    font-size:16.5px; line-height:1.85; color: rgba(243,239,228,0.95);
+    max-height: 32vh; overflow-y:auto; margin-bottom:16px; padding-right:4px;
   }
   .explain-ref{
-    font-size:11.5px; color: rgba(233,217,168,0.75); margin-bottom:16px;
+    font-size:13px; color: rgba(233,217,168,0.8); margin-bottom:18px;
   }
   .next-btn{
     width:100%; background: var(--gold); color: var(--navy-deep);
-    border:none; border-radius:2px; padding:14px; font-size:14.5px;
+    border:none; border-radius:2px; padding:16px; font-size:17px;
     font-weight:700; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
     letter-spacing:.02em;
   }
@@ -236,32 +237,32 @@
     background: var(--navy); color: var(--paper);
     padding: 48px 28px 34px; text-align:center; position:relative; overflow:hidden;
   }
-  .result-hero .eyebrow{ font-size:12px; color: var(--gold-soft); letter-spacing:.14em; margin-bottom:18px;}
+  .result-hero .eyebrow{ font-size:13px; color: var(--gold-soft); letter-spacing:.12em; margin-bottom:20px;}
   .score-big{
     font-family:"Shippori Mincho", serif; font-weight:700;
-    font-size:58px; line-height:1; color:#fff;
+    font-size:64px; line-height:1; color:#fff;
   }
-  .score-big span{ font-size:22px; color: var(--gold-soft); margin-left:6px; }
-  .score-label{ font-size:13px; color: rgba(243,239,228,0.75); margin-top:10px; }
+  .score-big span{ font-size:24px; color: var(--gold-soft); margin-left:6px; }
+  .score-label{ font-size:15px; color: rgba(243,239,228,0.8); margin-top:12px; }
   .result-list{ padding: 22px 20px 40px; flex:1; }
   .result-list h3{
-    font-family:"Shippori Mincho", serif; font-size:15px; color:var(--navy); margin: 4px 0 14px;
+    font-family:"Shippori Mincho", serif; font-size:17px; color:var(--navy); margin: 4px 0 16px;
   }
-  .rgrid{ display:grid; grid-template-columns: repeat(8,1fr); gap:7px; margin-bottom:28px;}
+  .rgrid{ display:grid; grid-template-columns: repeat(6,1fr); gap:9px; margin-bottom:30px;}
   .rgrid .cell{
-    aspect-ratio:1; border-radius:2px; display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:700; color:#fff; cursor:pointer;
+    aspect-ratio:1; border-radius:3px; display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:700; color:#fff; cursor:pointer;
   }
   .rgrid .cell.ok{ background: var(--correct); }
   .rgrid .cell.ng{ background: var(--incorrect); }
-  .result-actions{ display:flex; flex-direction:column; gap:10px; }
+  .result-actions{ display:flex; flex-direction:column; gap:12px; }
   .btn-primary{
     background: var(--navy); color:#fff; border:none; border-radius:2px;
-    padding:14px; font-size:14px; font-weight:600; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
+    padding:16px; font-size:17px; font-weight:600; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
   }
   .btn-secondary{
     background:transparent; color: var(--navy); border:1.5px solid var(--navy); border-radius:2px;
-    padding:13px; font-size:14px; font-weight:600; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
+    padding:15px; font-size:17px; font-weight:600; font-family:"Noto Sans JP",sans-serif; cursor:pointer;
   }
 
   /* review detail modal */
@@ -275,16 +276,17 @@
     background:#fff; border-radius:16px 16px 0 0; padding:22px 22px calc(24px + env(safe-area-inset-bottom));
   }
   .review-sheet .close-x{
-    width:34px; height:34px; border-radius:50%; background: var(--paper-2); border:none;
-    display:flex; align-items:center; justify-content:center; margin-left:auto; margin-bottom:12px; cursor:pointer;
+    width:40px; height:40px; border-radius:50%; background: var(--paper-2); border:none;
+    display:flex; align-items:center; justify-content:center; margin-left:auto; margin-bottom:14px; cursor:pointer;
+    font-size:16px;
   }
-  .review-sheet .rq-theme{ font-size:11.5px; color: var(--gold); font-weight:700; margin-bottom:6px;}
-  .review-sheet .rq-text{ font-family:"Shippori Mincho", serif; font-size:15.5px; line-height:1.8; color:var(--navy); margin-bottom:16px; white-space:pre-line;}
-  .review-sheet .ropt{ font-size:13.5px; padding:10px 12px; border-radius:2px; margin-bottom:8px; border:1px solid var(--line); line-height:1.6;}
+  .review-sheet .rq-theme{ font-size:13.5px; color: var(--gold); font-weight:700; margin-bottom:8px;}
+  .review-sheet .rq-text{ font-family:"Shippori Mincho", serif; font-size:19px; line-height:1.8; color:var(--navy); margin-bottom:18px; white-space:pre-line;}
+  .review-sheet .ropt{ font-size:16.5px; padding:12px 14px; border-radius:3px; margin-bottom:9px; border:1px solid var(--line); line-height:1.65;}
   .review-sheet .ropt.correct{ background: var(--correct-bg); border-color:var(--correct); }
   .review-sheet .ropt.wrong{ background: var(--incorrect-bg); border-color:var(--incorrect); }
-  .review-sheet .rexp{ font-size:13px; line-height:1.8; color:#4a4638; background:var(--paper); padding:12px 14px; border-radius:2px; margin-top:12px;}
-  .review-sheet .rref{ font-size:11px; color:#8a8374; margin-top:8px;}
+  .review-sheet .rexp{ font-size:15.5px; line-height:1.85; color:#4a4638; background:var(--paper); padding:14px 16px; border-radius:3px; margin-top:14px;}
+  .review-sheet .rref{ font-size:12.5px; color:#8a8374; margin-top:10px;}
 
   ::-webkit-scrollbar{ width:5px; }
   ::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.2); border-radius:3px; }
